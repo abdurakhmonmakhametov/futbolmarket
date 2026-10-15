@@ -13,3 +13,5 @@ FUTBOL_MARKET_FIXED/
 node_modules/
 .vercel/
 telegram-app.zip
+
+.tools/

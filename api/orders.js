@@ -1,103 +1,94 @@
 /* =====================================================================
-   POST /api/orders — saytdan yoki Telegram Mini App'dan buyurtma.
-   Buyurtma bot orqali ADMIN_CHAT_ID ga yuboriladi (holat tugmalari bilan).
-   Baza yo'q: buyurtmalar Telegram chatida turadi.
+   /api/orders (Vercel)
+     POST            — saytdan yoki Telegram Mini App'dan buyurtma (hamma uchun)
+     GET             — admin panel uchun ro'yxat          (x-admin-key kerak)
+     PUT    ?id=..   — buyurtmani tahrirlash / holat      (x-admin-key kerak)
+     DELETE ?id=..   — buyurtmani o'chirish               (x-admin-key kerak)
+   /api/orders/<id> manzili vercel.json orqali ?id=<id> ga yo'naltiriladi.
+   Buyurtma bot orqali ADMIN_CHAT_ID ga boradi; Redis ulangan bo'lsa admin panelga ham.
    ===================================================================== */
 const {
-  TOKEN, ADMINS, DELIVERY_FEE, PRINT_FEE, products,
-  tg, verifyInitData, orderText, statusKeyboard, readJson, money, esc
+  TOKEN, ADMINS, STATUS_NOTE, MAP_RE,
+  tg, orderText, customerConfirmText, statusKeyboard, readJson, esc,
+  store, getProducts, isAdminRequest, buildOrder, OrderError
 } = require("./_lib");
 
-const clip = (s, n) => String(s ?? "").trim().slice(0, n);
-
-function normPhone(v) {
-  let d = String(v || "").replace(/\D/g, "");
-  if (d.length === 9) d = "998" + d;
-  return d.length >= 9 && d.length <= 15 ? "+" + d : null;
-}
-
-function buildItem(line) {
-  const p = products.find(x => String(x.id) === String(line.productId))
-    || products.find(x => x.name === (line.product || line.name));
-  if (!p) throw new Error("Mahsulot topilmadi: " + clip(line.product || line.name || line.productId, 40));
-
-  const size = String(line.size || "");
-  if (!p.sizes.map(String).includes(size)) throw new Error(`${p.name}: o‘lcham noto‘g‘ri`);
-
-  const qty = Number(line.quantity ?? line.qty);
-  if (!Number.isInteger(qty) || qty < 1 || qty > 99) throw new Error(`${p.name}: miqdor noto‘g‘ri`);
-
-  const custom = !!(line.custom && p.custom);
-  const shirtName = custom ? clip(line.shirtName, 12).toUpperCase() : "";
-  const shirtNumber = custom ? String(parseInt(line.shirtNumber, 10) || "") : "";
-  if (custom && (!shirtName || !(+shirtNumber >= 1 && +shirtNumber <= 99))) throw new Error(`${p.name}: ism va raqam kerak`);
-
-  // narxni serverda qayta hisoblaymiz — brauzerdan kelgan narxga ishonmaymiz
-  return { productId: p.id, name: p.name, size, qty, custom, shirtName, shirtNumber, unitPrice: Number(p.price) + (custom ? PRINT_FEE : 0) };
-}
-
-module.exports = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Faqat POST. Buyurtmalar Telegram botda." });
+async function create(req, res) {
   if (!TOKEN || !ADMINS.length) return res.status(503).json({ error: "Bot sozlanmagan (BOT_TOKEN / ADMIN_CHAT_ID)." });
 
   let body;
   try { body = await readJson(req); } catch (e) { return res.status(400).json({ error: "JSON xato" }); }
 
-  const lines = Array.isArray(body) ? body : Array.isArray(body.orders) ? body.orders : [body];
-  if (!lines.length || lines.length > 30) return res.status(400).json({ error: "Savat bo‘sh yoki juda katta" });
+  let built;
+  try { built = buildOrder(body, await getProducts()); }
+  catch (e) {
+    if (e instanceof OrderError) return res.status(e.status).json({ error: e.message });
+    throw e;
+  }
+  const { order, lines } = built;
 
-  let items;
-  try { items = lines.map(buildItem); } catch (e) { return res.status(400).json({ error: e.message }); }
-
-  const f = lines[0];
-  const tgUser = verifyInitData(body.initData);
-  if (body.initData && !tgUser) return res.status(401).json({ error: "Telegram ma’lumoti tasdiqlanmadi. Mini App'ni qayta oching." });
-
-  const phone = normPhone(f.phone);
-  const address = clip(f.address, 300);
-  const location = /^https:\/\/(www\.)?(google\.com\/maps\?q=|maps\.google\.com\/\?q=)-?[\d.]+,-?[\d.]+$/.test(f.location || "") ? f.location : "";
-  if (!phone) return res.status(400).json({ error: "Telefon raqam noto‘g‘ri" });
-  if (address.length < 5 && !location) return res.status(400).json({ error: "Manzil kerak" });
-
-  const subtotal = items.reduce((n, x) => n + x.unitPrice * x.qty, 0);
-  const order = {
-    id: "FM-" + Date.now().toString(36).slice(-5).toUpperCase() + Math.random().toString(36).slice(2, 4).toUpperCase(),
-    source: tgUser ? "tg" : "web",
-    name: clip(f.userName || f.name || (tgUser && tgUser.first_name) || "Mijoz", 60),
-    contact: tgUser ? (tgUser.username ? "@" + tgUser.username : "tg id " + tgUser.id) : clip(f.email, 80),
-    phone, address, location,
-    payment: f.payment === "Karta" ? "Karta" : clip(f.payment || "Naqd pul", 40),
-    cardLast4: /^\d{4}$/.test(f.cardLast4 || "") ? f.cardLast4 : "",
-    note: clip(body.note || f.note, 200),
-    items, delivery: DELIVERY_FEE, total: subtotal + DELIVERY_FEE
-  };
+  let saved = false;
+  if (store.enabled) {
+    try { await store.addOrders(lines); saved = true; } catch (e) { console.error("saqlanmadi:", e.message); }
+  }
 
   let delivered = 0;
   for (const chat of ADMINS) {
     try {
       await tg("sendMessage", {
         chat_id: chat, text: orderText(order, "Yangi"), parse_mode: "HTML",
-        disable_web_page_preview: true, reply_markup: statusKeyboard(tgUser && tgUser.id)
+        disable_web_page_preview: true, reply_markup: statusKeyboard(order.tgUserId)
       });
       delivered++;
-      const m = location.match(/q=(-?[\d.]+),(-?[\d.]+)/);
-      if (m) await tg("sendLocation", { chat_id: chat, latitude: +m[1], longitude: +m[2] }).catch(() => { });
+      const m = order.location.match(MAP_RE);
+      if (m) await tg("sendLocation", { chat_id: chat, latitude: +m[2], longitude: +m[3] }).catch(() => { });
     } catch (e) {
       console.error("admin ga yuborilmadi:", e.message);
     }
   }
-  if (!delivered) return res.status(502).json({ error: "Telegramga yuborib bo‘lmadi. Keyinroq urinib ko‘ring." });
+  if (!delivered && !saved) return res.status(502).json({ error: "Telegramga yuborib bo‘lmadi. Keyinroq urinib ko‘ring." });
 
-  if (tgUser) {
-    const list = items.map(x => `• ${esc(x.name)} — ${esc(x.size)} × ${x.qty}`).join("\n");
-    await tg("sendMessage", {
-      chat_id: tgUser.id, parse_mode: "HTML",
-      text: `✅ <b>Buyurtmangiz qabul qilindi</b> <code>#${order.id}</code>\n\n${list}\n\n💰 Jami: <b>${money(order.total)}</b>\n\nAdmin tez orada ${esc(phone)} raqamiga qo‘ng‘iroq qiladi. Holat o‘zgarsa shu yerga xabar keladi.`
-    }).catch(() => { });
+  if (order.tgUserId) {
+    await tg("sendMessage", { chat_id: order.tgUserId, parse_mode: "HTML", text: customerConfirmText(order) }).catch(() => { });
+  }
+  res.status(201).json({ ok: true, id: order.id, total: order.total });
+}
+
+module.exports = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Key");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method === "POST") return create(req, res);
+
+  /* ----- admin panel ----- */
+  if (!["GET", "PUT", "DELETE"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
+  if (!store.enabled) return res.status(501).json({ error: "Baza ulanmagan: Vercel → Storage → Upstash Redis qo‘shing." });
+  if (!isAdminRequest(req)) return res.status(401).json({ error: "Admin paroli kerak" });
+
+  const id = String((req.query && req.query.id) || new URL(req.url, "http://x").searchParams.get("id") || "");
+  if (req.method === "GET") return res.status(200).json(await store.orders());
+  if (!id) return res.status(400).json({ error: "id kerak" });
+
+  if (req.method === "DELETE") {
+    await store.deleteOrder(id);
+    return res.status(200).json({ ok: true });
   }
 
-  res.status(201).json({ ok: true, id: order.id, total: order.total });
+  let patch;
+  try { patch = await readJson(req); } catch (e) { return res.status(400).json({ error: "JSON xato" }); }
+  const allowed = ["userName", "quantity", "status", "total", "unitPrice", "price", "phone", "address"];
+  const clean = Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k)));
+  const before = (await store.orders()).find(o => String(o.id) === id);
+  const next = await store.updateOrder(id, clean);
+  if (!next) return res.status(404).json({ error: "Topilmadi" });
+
+  // admin panelda holat o'zgarsa — Telegram orqali buyurtma bergan mijozga xabar
+  if (before && clean.status && clean.status !== before.status && next.tgUserId && STATUS_NOTE[clean.status]) {
+    await tg("sendMessage", {
+      chat_id: next.tgUserId, parse_mode: "HTML",
+      text: `<code>#${esc(next.orderId || next.id)}</code> — ${STATUS_NOTE[clean.status]}`
+    }).catch(() => { });
+  }
+  res.status(200).json(next);
 };

@@ -16,3 +16,5 @@ THEME_LANG_README.txt
 *.png.bak
 Снимок*
 \#U0421*
+.tools
+telegram-local.js

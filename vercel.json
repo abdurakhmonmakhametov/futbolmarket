@@ -3,6 +3,10 @@
   "functions": {
     "api/*.js": { "maxDuration": 10 }
   },
+  "rewrites": [
+    { "source": "/api/orders/:id", "destination": "/api/orders?id=:id" },
+    { "source": "/api/products/:id", "destination": "/api/products?id=:id" }
+  ],
   "headers": [
     {
       "source": "/telegram-app/(.*)",

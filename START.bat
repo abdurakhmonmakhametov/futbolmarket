@@ -6,6 +6,7 @@ if errorlevel 1 (
  pause
  exit /b 1
 )
-start "Futbol Market (sayt + Telegram bot)" cmd /k "node index.js"
-timeout /t 2 >nul
-start "" http://localhost:3000
+rem Sayt + Telegram bot + Mini App (https tunnel orqali). Oynani yopsangiz bot to'xtaydi.
+start "Futbol Market (sayt + Telegram bot + Mini App)" cmd /k "node telegram-local.js"
+timeout /t 3 >nul
+start "" http://localhost:3000/admin.html

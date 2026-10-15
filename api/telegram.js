@@ -3,7 +3,7 @@
    Kompyuter yoqilishi shart emas: Vercel har bir xabarda funksiyani ishga tushiradi.
    ===================================================================== */
 const {
-  TOKEN, ADMINS, STATUS, STATUS_ICON, products,
+  TOKEN, ADMINS, STATUS, STATUS_ICON, STATUS_NOTE, store, getProducts,
   esc, money, tg, siteUrl, webhookSecret, readJson
 } = require("./_lib");
 
@@ -93,6 +93,8 @@ async function onMessage(msg, base) {
   }
 
   if (cmd === "/start" || cmd === "/shop") {
+    // «🛒 Do'kon» menyu tugmasi shu chatga ham alohida qo'yiladi
+    await tg("setChatMenuButton", { chat_id: chat, menu_button: { type: "web_app", text: "🛒 Do‘kon", web_app: { url: links(base).shop } } }).catch(() => { });
     if (isAdmin(chat)) await send(chat, ADMIN_HELP);
     await send(chat,
       `ASSALOMU ALAYKUM, ${esc(who(msg.from))}! 👋\n\n<b>Futbol Market</b> — original formalar, butsalar, to‘plar va kuboklar.\n\nPastdagi <b>«🛒 Do‘konni ochish»</b> tugmasini bosing yoki nima kerakligini tanlang.`,
@@ -112,7 +114,7 @@ async function onMessage(msg, base) {
       await tellAdmins(`🛍 <b>Mijoz so‘rovi</b>\n👤 ${esc(who(msg.from))}\nID: <code>${chat}</code>\n\nMijoz: <b>Menga ${esc(c.title)} kerak edi</b>\n\n↩️ Javob berish uchun shu xabarga <b>reply</b> qiling.`);
     }
     if (key === "boshqa") return send(chat, "Yaxshi! 🙂 Nima kerakligini yozib yuboring ✍️\nAdmin tez orada javob beradi.");
-    const list = products.filter(p => norm(p.cat) === key);
+    const list = (await getProducts()).filter(p => norm(p.cat) === key);
     const body = list.length
       ? `${c.icon} <b>${esc(c.title)}</b> bo‘yicha mahsulotlarimiz:\n\n` +
         list.map((p, i) => `${i + 1}. <b>${esc(p.name)}</b> — ${money(p.price)}`).join("\n") +
@@ -167,14 +169,10 @@ async function onCallback(cb) {
   await answer("Holat: " + status);
 
   const id = (text.match(/#(FM-[A-Z0-9]+)/) || [])[1] || "";
+  // admin paneldagi holat ham yangilanadi
+  if (id && store.enabled) await store.setStatusByOrderId(id, status).catch(e => console.error(e.message));
   if (customer && customer !== "0") {
-    const note = {
-      "Tayyorlanmoqda": "Buyurtmangiz tayyorlanmoqda 📦",
-      "Yetkazilmoqda": "Buyurtmangiz yo‘lda! Kuryer tez orada yetib boradi 🚚",
-      "Yetkazildi": "Buyurtmangiz yetkazildi. Xaridingiz uchun rahmat! ✅",
-      "Bekor": "Buyurtmangiz bekor qilindi. Savollar bo‘lsa shu yerga yozing ❌"
-    }[status];
-    await send(customer, `<code>#${esc(id)}</code> — ${note}`).catch(() => { });
+    await send(customer, `<code>#${esc(id)}</code> — ${STATUS_NOTE[status]}`).catch(() => { });
   }
 }
 

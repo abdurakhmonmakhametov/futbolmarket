@@ -47,42 +47,57 @@ ESLATMA:
 - Karta raqamining faqat oxirgi 4 raqami saqlanadi.
 
 
+=====================================================
+BOTDA BUYURTMA (Mini App) — KOMPYUTERDA: START.bat
+=====================================================
+START.bat endi «node telegram-local.js» ni ishga tushiradi:
+  1) cloudflared (bepul https tunnel) birinchi marta .tools/ ga yuklanadi
+  2) sayt internetda https://....trycloudflare.com manzilida ochiladi
+  3) bot ishga tushadi va mijozlar chatidagi «🛒 Do'kon» tugmasi shu manzilga ulanadi
+Mijoz botda «🛒 Do'kon» ni bosadi -> mahsulot, o'lcham, savat -> «Buyurtma berish».
+Buyurtma data.json ga yoziladi va:
+  - admin panelda ko'rinadi: http://localhost:3000/admin.html
+  - admin chatiga bot xabari keladi (holat tugmalari bilan); tugma bosilsa admin
+    paneldagi holat ham o'zgaradi va mijozga Telegram'da xabar boradi
+  - admin panelda holatni o'zgartirsangiz ham bot buni ko'radi
+Admin panelda qo'shilgan yangi mahsulot darhol botdagi do'konda ham chiqadi.
 
+Eslatma:
+- Tunnel manzili har ishga tushirishda yangi bo'ladi — bot buni o'zi yangilaydi.
+- Kompyuter yoki oyna yopilsa bot to'xtaydi. Doimiy ishlashi uchun pastdagi Vercel bo'limi.
+- Internetdan /api/orders ro'yxatini ko'rib bo'lmaydi (faqat shu kompyuterdan yoki
+  ADMIN_KEY paroli bilan). .env, data.json kabi fayllar internetga berilmaydi.
 
 
 =====================================================
 SAYT + TELEGRAM BOT + MINI APP — VERCEL'DA (kompyuter o'chiq bo'lsa ham ishlaydi)
 =====================================================
-Bitta Vercel loyiha (bepul) hammasini ishlatadi, server ishga tushirish shart emas:
+Bitta Vercel loyiha (bepul) hammasini ishlatadi:
   https://<sayt>.vercel.app/               — sayt (index, login, shop, admin)
   https://<sayt>.vercel.app/telegram-app/  — Telegram Mini App (botdagi «🛒 Do'kon»)
-  /api/products  — sayt va Mini App uchun yagona mahsulotlar ro'yxati (products.json)
-  /api/orders    — saytdan va Mini App'dan buyurtma -> bot orqali adminga
+  /api/products  — sayt, Mini App va bot uchun yagona mahsulotlar ro'yxati
+  /api/orders    — saytdan va Mini App'dan buyurtma -> bot orqali adminga + admin panelga
   /api/telegram  — bot (Telegram webhook): /start, kategoriyalar, mijoz bilan yozishma
 
-Buyurtma kelganda admin chatida tugmalar chiqadi: Tayyorlanmoqda / Yetkazilmoqda /
-Yetkazildi / Bekor. Bosilsa xabar yangilanadi va Telegram orqali buyurtma bergan
-mijozga avtomatik xabar boradi. Mijoz botga yozsa xabar adminga keladi —
-unga reply qilsangiz javob mijozga boradi.
-
 DEPLOY (bir marta):
-1) npx vercel login
-2) npx vercel deploy --prod
+1) https://vercel.com/new -> GitHub'dagi futbolmarket reponi Import qiling
+   (yoki: npx vercel login va npx vercel deploy --prod)
+2) Vercel -> Project -> Storage -> Upstash (Redis) -> Create/Connect
+   (bepul; buyurtmalar va mahsulotlar shu yerda saqlanadi -> admin panelda ko'rinadi)
 3) Vercel -> Project -> Settings -> Environment Variables:
      BOT_TOKEN      = @BotFather tokeni
      ADMIN_CHAT_ID  = buyurtmalar keladigan chat ID
-   so'ng yana: npx vercel deploy --prod
+     ADMIN_KEY      = admin panel paroli (o'zingiz o'ylab toping)
+   so'ng Deployments -> Redeploy
 4) node setup-bot.js https://<sayt>.vercel.app
    (yoki bot-setup.html ni brauzerda ochib, token va manzilni yozing)
 5) Tavsiya: @BotFather -> /mybots -> bot -> Bot Settings -> Configure Mini App ->
    Enable Mini App -> https://<sayt>.vercel.app/telegram-app/
 
-MAHSULOT QO'SHISH/NARX: products.json ni tahrirlang va «npx vercel deploy --prod».
-(Vercel'da admin.html dagi mahsulot tahriri faqat shu brauzerda saqlanadi.)
+Admin panel: https://<sayt>.vercel.app/admin.html — birinchi marta ADMIN_KEY so'raladi.
+Upstash ulanmasa: buyurtmalar faqat Telegram admin chatiga boradi, mahsulotlar products.json dan.
 
 ESLATMA:
-- Vercel'da baza yo'q: buyurtmalar Telegram admin chatida turadi.
-  admin.html dagi buyurtmalar ro'yxati faqat kompyuterda (node index.js) ishlaydi.
-- Webhook yoqilgach «node index.js» botni ishga tushirmaydi, faqat saytni —
+- Webhook yoqilgach START.bat botni kompyuterda ishga tushirmaydi (faqat saytni) —
   ikki joyda bir vaqtda ishlab, bir-birini buzmasligi uchun.
-- .env va bot-setup.html Vercel'ga yuklanmaydi (.vercelignore).
+- .env, bot-setup.html, .tools Vercel'ga yuklanmaydi (.vercelignore).

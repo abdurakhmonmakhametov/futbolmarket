@@ -24,7 +24,7 @@ const path = require('path');
 const TOKEN = (process.env.BOT_TOKEN || '').trim();
 const ADMINS = (process.env.ADMIN_CHAT_ID || '').split(',').map(s => s.trim()).filter(Boolean);
 const TG_API = process.env.TELEGRAM_API || 'https://api.telegram.org';
-const SITE = 'http://127.0.0.1:3000';
+const SITE = 'http://127.0.0.1:' + (Number(process.env.PORT) || 3000);
 const STATE_FILE = path.join(__dirname, 'bot-state.json');
 const POLL_ORDERS_MS = 5000;
 
@@ -49,6 +49,7 @@ const money = n => Number(n || 0).toLocaleString('en-US').replace(/,/g, ' ') + '
 // Admin paneldagi holat nomlari bilan bir xil bo'lishi shart
 const STATUS = { t: 'Tayyorlanmoqda', y: 'Yetkazilmoqda', d: 'Yetkazildi', c: 'Bekor' };
 const STATUS_ICON = { 'Yangi': '🆕', 'Tayyorlanmoqda': '📦', 'Yetkazilmoqda': '🚚', 'Yetkazildi': '✅', 'Bekor': '❌' };
+const { STATUS_NOTE, MAP_RE } = require('./api/_lib');
 
 /* ---------- Holat (qaysi buyurtmalar yuborilgan) ---------- */
 let state = { seen: [], groups: {}, offset: 0 };
@@ -100,7 +101,7 @@ function orderText(list, title) {
     const total = list.reduce((n, o) => n + Number(o.total || 0), 0);
     const delivery = list.reduce((n, o) => n + Number(o.delivery || 0), 0);
     const status = groupStatus(list);
-    const mapOk = String(f.location || '').startsWith('https://www.google.com/maps?q=');
+    const mapOk = MAP_RE.test(String(f.location || ''));
 
     const items = list.map((o, i) => {
         const extra = o.custom ? ` • yozuv: ${esc(o.shirtName)} #${esc(o.shirtNumber)}` : '';
@@ -112,7 +113,7 @@ function orderText(list, title) {
         : `💵 ${esc(f.payment || 'Naqd pul')}`;
 
     return [
-        `${title} <code>#${String(f.id).slice(-6)}</code>`,
+        `${title} <code>#${f.orderId || String(f.id).slice(-6)}</code>${f.source === 'tg' ? ' · 📱 Telegram' : f.source === 'web' ? ' · 🌐 Sayt' : ''}`,
         '',
         `👤 ${esc(f.userName)}${f.email ? ' (' + esc(f.email) + ')' : ''}`,
         f.phone ? `📞 ${esc(f.phone)}` : null,
@@ -150,10 +151,11 @@ function groupOrders(orders) {
     const groups = [];
     for (const o of sorted) {
         const g = groups[groups.length - 1];
-        const same = g
+        // yangi buyurtmalarda orderId bor; eskilarini email+telefon+vaqt bo'yicha birlashtiramiz
+        const same = g && (o.orderId ? g[0].orderId === o.orderId : !g[0].orderId
             && (g[0].email || '') === (o.email || '')
             && (g[0].phone || '') === (o.phone || '')
-            && Math.abs(new Date(o.date) - new Date(g[g.length - 1].date)) < 30000;
+            && Math.abs(new Date(o.date) - new Date(g[g.length - 1].date)) < 30000);
         if (same) g.push(o); else groups.push([o]);
     }
     return groups;
@@ -173,11 +175,22 @@ async function notifyAdmins(list) {
                 reply_markup: keyboard(gid)
             });
 
-            const m = String(list[0].location || '').match(/maps\?q=(-?[\d.]+),(-?[\d.]+)/);
-            if (m) await tg('sendLocation', { chat_id: chat, latitude: +m[1], longitude: +m[2] });
+            const m = String(list[0].location || '').match(MAP_RE);
+            if (m) await tg('sendLocation', { chat_id: chat, latitude: +m[2], longitude: +m[3] });
         } catch (e) {
             console.error('[bot] xabar yuborilmadi:', e.message);
         }
+    }
+
+    // Telegram Mini App orqali buyurtma bergan mijozga tasdiq
+    const f = list[0];
+    if (f.tgUserId) {
+        const total = list.reduce((n, o) => n + Number(o.total || 0), 0);
+        const items = list.map(o => `• ${esc(o.product)} — ${esc(o.size)} × ${o.quantity}`).join('\n');
+        await tg('sendMessage', {
+            chat_id: f.tgUserId, parse_mode: 'HTML',
+            text: `✅ <b>Buyurtmangiz qabul qilindi</b> <code>#${esc(f.orderId || f.id)}</code>\n\n${items}\n\n💰 Jami: <b>${money(total)}</b>\n\nAdmin tez orada ${esc(f.phone)} raqamiga qo‘ng‘iroq qiladi. Holat o‘zgarsa shu yerga xabar keladi.`
+        }).catch(e => console.error('[bot] mijozga yuborilmadi:', e.message));
     }
 }
 
@@ -333,8 +346,24 @@ async function onCategory(msg, key) {
         : reply(chat, body, CUSTOMER_MENU);
 }
 
+/* «🛒 Do'kon» menyu tugmasi har bir chatga alohida qo'yiladi (umumiy tugma bu botda ishonchsiz).
+   Tunnel manzili har safar yangi — shuning uchun chatlar ro'yxati saqlanadi va ishga tushganda yangilanadi. */
+const menuDone = new Set();
+async function ensureMenu(chat) {
+    const id = String(chat);
+    if (!/^https:\/\//i.test(WEBAPP_URL) || menuDone.has(id)) return;
+    menuDone.add(id);
+    if (!(state.menuChats || []).includes(id)) state.menuChats = [...(state.menuChats || []), id].slice(-1000);
+    try {
+        await tg('setChatMenuButton', { chat_id: chat, menu_button: { type: 'web_app', text: '🛒 Do‘kon', web_app: { url: WEBAPP_URL } } });
+    } catch (e) {
+        console.error('[bot] menyu tugmasi:', e.message);
+    }
+}
+
 async function onMessage(msg) {
     if (msg.chat.type && msg.chat.type !== 'private') return;
+    await ensureMenu(msg.chat.id);
     const chat = msg.chat.id;
     const text = String(msg.text || '').trim();
     const word = text.split(/[\s@]/)[0].toLowerCase();
@@ -426,6 +455,12 @@ async function onCallback(cb) {
     const list = all.filter(o => ids.includes(o.id));
     await tg('answerCallbackQuery', { callback_query_id: cb.id, text: `Holat: ${status}` });
 
+    const f = list[0];
+    if (f && f.tgUserId) {
+        await tg('sendMessage', { chat_id: f.tgUserId, parse_mode: 'HTML', text: `<code>#${esc(f.orderId || f.id)}</code> — ${STATUS_NOTE[status]}` })
+            .catch(e => console.error('[bot] mijozga yuborilmadi:', e.message));
+    }
+
     if (list.length) {
         try {
             await tg('editMessageText', {
@@ -489,6 +524,13 @@ async function updatesLoop() {
         }
         console.log(`[bot] Telegram bot ishga tushdi: @${me.username}  (versiya 2.3: mijoz salomlashuvi + kategoriya tugmalari)`);
         if (!ADMINS.length) console.log('[bot] ADMIN_CHAT_ID yozilmagan: botga /start yuboring, u ID ni aytadi.');
+        // oldin yozgan mijozlar va adminlarning «🛒 Do'kon» tugmasini yangi manzilga ulaymiz
+        if (/^https:\/\//i.test(WEBAPP_URL)) {
+            const chats = [...new Set([...ADMINS, ...(state.menuChats || [])])];
+            for (const chat of chats) await ensureMenu(chat);
+            saveState();
+            if (chats.length) console.log(`[bot] «🛒 Do‘kon» tugmasi ${chats.length} ta chatda yangilandi`);
+        }
     } catch (e) {
         console.error('[bot] Tokenni tekshiring yoki internetni ulang:', e.message);
         console.error('[bot] Sayt ishlashda davom etadi, bot qayta urinadi.');
