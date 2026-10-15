@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Futbol Market — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="./neon-theme.css">
+</head>
+
+<body class="admin-page">
+    <header class="admin-header"><a class="brand" href="./index.html"><img src="./logo.png" alt="Futbol Market"></a>
+        <div class="header-actions"><a class="tg-link" href="https://t.me/futbolmarket_bot" target="_blank" rel="noopener" title="Telegram bot: @futbolmarket_bot"><i class="fa-brands fa-telegram"></i><span>Telegram bot</span></a><span class="admin-pill"><i class="fa-solid fa-shield-halved"></i> ADMIN</span><button class="dark-btn" id="logout">Chiqish</button></div>
+    </header>
+    <main class="admin-main">
+        <section class="admin-welcome">
+            <div><span class="eyebrow">BOSHQARUV PANELI</span>
+                <p>Mahsulotlarni boshqaring va kim nima sotib olganini ko‘ring.</p>
+            </div><button class="refresh-btn" id="refresh"><i class="fa-solid fa-rotate"></i> Yangilash</button>
+        </section>
+        <section class="stats-grid">
+            <div class="admin-stat"><span>Jami buyurtma</span><b id="total">0</b></div>
+            <div class="admin-stat"><span>Forma</span><b id="jerseys">0</b></div>
+            <div class="admin-stat"><span>Butsa</span><b id="boots">0</b></div>
+            <div class="admin-stat"><span>Umumiy summa</span><b id="sum">0</b></div>
+        </section>
+
+        <section class="admin-product-box">
+            <div class="orders-head">
+                <div>
+                    <h2>➕ Yangi mahsulot qo‘shish</h2>
+                    <p>Bu yerga qo‘shilgan mahsulot foydalanuvchi do‘konida chiqadi.</p>
+                </div>
+            </div>
+            <form id="productForm" class="product-admin-form">
+                <div class="admin-field"><label>Nomi</label><input id="pName" required
+                        placeholder="Masalan: Barcelona Formasi"></div>
+                <div class="admin-field"><label>Kategoriya</label><select id="pCat">
+                        <option>Forma</option>
+                        <option>Butsa</option>
+                        <option>To‘p</option>
+                        <option>Kubok</option>
+                        <option>Boshqa</option>
+                    </select></div>
+                <div class="admin-field"><label>Narxi (so‘m)</label><input id="pPrice" type="number" min="0" required
+                        placeholder="899000"></div>
+                <div class="admin-field"><label>O‘lchamlar</label><input id="pSizes" required
+                        placeholder="S,M,L,XL yoki 39,40,41"></div>
+                <div class="admin-field admin-wide"><label>Rasm</label><input id="pImage" type="file" accept="image/*">
+                </div>
+                <label class="custom-check"><input id="pCustom" type="checkbox"> Forma orqasiga ism va raqam yozdirish
+                    mumkin</label>
+                <button class="confirm-btn admin-add-btn" type="submit"><i class="fa-solid fa-plus"></i> MAHSULOTNI
+                    QO‘SHISH</button>
+            </form>
+            <div id="productMessage" class="admin-message"></div>
+        </section>
+
+        <section class="admin-product-box">
+            <div class="orders-head">
+                <div>
+                    <h2>📦 Do‘kondagi mahsulotlar</h2>
+                    <p>Admin qo‘shgan mahsulotlarni shu yerdan o‘chirish mumkin.</p>
+                </div>
+            </div>
+            <div id="productList" class="admin-product-list"></div>
+        </section>
+
+        <section class="orders-box">
+            <div class="orders-head">
+                <div>
+                    <h2>Barcha xaridlar</h2>
+                    <p>Kim nima sotib olganini shu yerda ko‘ring.</p>
+                </div><input id="search" placeholder="Email yoki mahsulot bo‘yicha qidirish...">
+            </div>
+            <div id="orders"></div>
+        </section>
+    </main>
+    <script>
+        const admin = JSON.parse(localStorage.getItem("fm_current_user") || "null"); if (!admin || admin.role !== "admin") location.href = "./login.html";
+        const $ = id => document.getElementById(id); const money = n => new Intl.NumberFormat("uz-UZ").format(Number(n) || 0) + " so‘m";
+        const defaults = [
+            { id: 1, name: "Real Madrid Uy Formasi", cat: "Forma", price: 899000, img: "./real.png", sizes: ["XS", "S", "M", "L", "XL", "XXL"], custom: true },
+            { id: 2, name: "Real Madrid Mehmon Formasi", cat: "Forma", price: 899000, img: "./logo.png", sizes: ["XS", "S", "M", "L", "XL", "XXL"], custom: true },
+            { id: 3, name: "Professional Futbol Butsasi", cat: "Butsa", price: 749000, img: "./butsa.png", sizes: ["39", "40", "41", "42", "43", "44", "45", "46"], custom: false },
+            { id: 4, name: "Match Futbol To‘pi", cat: "To‘p", price: 299000, img: "./top.png", sizes: ["5-razmer"], custom: false },
+            { id: 5, name: "Chempionlar Kubogi", cat: "Kubok", price: 499000, img: "./kubog.png", sizes: ["Standart"], custom: false },
+            { id: 6, name: "Futbol Forma Premium", cat: "Forma", price: 799000, img: "./ota.png", sizes: ["S", "M", "L", "XL"], custom: true }];
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        function getProducts() { const s = JSON.parse(localStorage.getItem("fm_products") || "null"); return Array.isArray(s) && s.length ? s : defaults }
+        function saveProducts(a) { localStorage.setItem("fm_products", JSON.stringify(a)); }
+        async function syncProducts() { try { const r = await fetch("/api/products"); if (r.ok) { const a = await r.json(); if (Array.isArray(a) && a.length) { localStorage.setItem("fm_products", JSON.stringify(a)); } } } catch (e) { } }
+        async function getOrders() { try { const r = await fetch("/api/orders"); if (r.ok) { const a = await r.json(); localStorage.setItem("fm_orders", JSON.stringify(a)); return a } } catch (e) { } return JSON.parse(localStorage.getItem("fm_orders") || "[]") }
+        function renderProducts() { const a = getProducts(); $("productList").innerHTML = a.map(p => `<div class="admin-product-row"><div class="admin-product-thumb"><img src="${p.img}" onerror="this.src='./card.png'" alt=""></div><div class="admin-product-info"><b>${p.name}</b><span>${p.cat} • ${(p.sizes || []).join(", ")}</span><small>${p.custom ? "Orqa yozuv: HA" : "Orqa yozuv: YO‘Q"}</small></div><strong>${money(p.price)}</strong><button class="delete-order edit-btn" onclick="editProduct(${p.id})" title="Edit"><i class="fa-solid fa-pen"></i></button><button class="delete-order" onclick="deleteProduct(${p.id})" title="O‘chirish"><i class="fa-solid fa-trash"></i></button></div>`).join("") }
+        function editProduct(id) { const p = getProducts().find(x => x.id === id); if (!p) return; const name = prompt("Mahsulot nomi:", p.name); if (name === null) return; const price = prompt("Narxi:", p.price); if (price === null) return; const a = getProducts(); Object.assign(a.find(x => x.id === id), { name: name.trim() || p.name, price: Number(price) || p.price }); saveProducts(a); renderProducts(); }
+        function deleteProduct(id) { if (!confirm("Bu mahsulotni o‘chirasizmi?")) return; saveProducts(getProducts().filter(p => p.id !== id)); fetch("/api/products/" + encodeURIComponent(id), { method: "DELETE" }).catch(() => { }); renderProducts() }
+        $("productForm").onsubmit = e => { e.preventDefault(); const name = $("pName").value.trim(), cat = $("pCat").value, price = Number($("pPrice").value), sizes = $("pSizes").value.split(",").map(x => x.trim()).filter(Boolean), file = $("pImage").files[0], custom = $("pCustom").checked; if (!name || !price || !sizes.length) { $("productMessage").textContent = "Nomi, narx va o‘lchamlarni kiriting."; return } const finish = img => { let a = getProducts(); a.push({ id: Date.now(), name, cat, price, img: img || "./card.png", sizes, custom }); saveProducts(a); fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(a[a.length - 1]) }).catch(() => { }); e.target.reset(); $("productMessage").textContent = "Mahsulot muvaffaqiyatli qo‘shildi!"; renderProducts() }; if (file) { const r = new FileReader(); r.onload = () => finish(r.result); r.readAsDataURL(file) } else finish("./card.png") };
+        function editOrder(id) { const all = JSON.parse(localStorage.getItem("fm_orders") || "[]"), o = all.find(x => x.id === id); if (!o) return; const name = prompt("Xaridor ismi:", o.userName || ""); if (name === null) return; const qty = prompt("Miqdor:", o.quantity || 1); if (qty === null) return; const status = prompt("Status (Yangi / Tayyorlanmoqda / Yetkazilmoqda / Yetkazildi / Bekor):", o.status || "Yangi"); if (status === null) return; o.userName = name.trim() || o.userName; o.quantity = Math.max(1, Number(qty) || 1); o.status = status.trim() || "Yangi"; o.total = Number(o.unitPrice || o.price || 0) * o.quantity; o.price = o.unitPrice || o.price; localStorage.setItem("fm_orders", JSON.stringify(all)); fetch("/api/orders/" + encodeURIComponent(id), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(o) }).catch(() => { }); renderOrders() }
+        function renderOrders() { getOrders().then(all => { const q = $("search").value.trim().toLowerCase(), arr = all.filter(o => (o.email + " " + o.product + " " + o.userName + " " + (o.status || "")).toLowerCase().includes(q)); $("total").textContent = all.length; $("jerseys").textContent = all.filter(o => o.category === "Forma").reduce((n, o) => n + Number(o.quantity || 1), 0); $("boots").textContent = all.filter(o => o.category === "Butsa").reduce((n, o) => n + Number(o.quantity || 1), 0); $("sum").textContent = money(all.filter(o => o.status !== "Bekor").reduce((n, o) => n + Number(o.total || o.price || 0), 0)); if (!arr.length) { $("orders").innerHTML = '<div class="empty-orders"><i class="fa-solid fa-box-open"></i><h3>Hozircha buyurtma yo‘q</h3><p>Foydalanuvchi xarid qilganda bu yerda ko‘rinadi.</p></div>'; return } $("orders").innerHTML = arr.slice().reverse().map(o => `<div class="order-row"><div class="order-avatar">${(o.userName || "U").charAt(0).toUpperCase()}</div><div class="order-user"><b>${o.userName || "—"}</b><span>${o.email || "—"}</span>${o.phone ? `<span>📞 ${esc(o.phone)}</span>` : ""}</div><div class="order-product"><b>${o.product || "—"}</b><span>${o.category || ""} • O‘lcham: ${o.size || "—"} • Miqdor: ${o.quantity || 1}</span>${o.address || o.location ? `<span>📍 ${esc(o.address)}${String(o.location || "").startsWith("https://www.google.com/maps?q=") ? ` <a href="${esc(o.location)}" target="_blank" rel="noopener">xaritada ochish</a>` : ""}</span>` : ""}${o.payment ? `<span>💳 ${esc(o.payment)}${o.cardLast4 ? " •••• " + esc(o.cardLast4) : ""}</span>` : ""}</div><div class="order-custom">${o.custom ? `<b>${o.shirtName || ""} #${o.shirtNumber || ""}</b><span>Orqa yozuv</span>` : `<span>Orqa yozuv yo‘q</span>`}</div><div class="order-price"><b>${money(o.total || o.price)}</b>${o.delivery ? `<small>yetkazib berish ${money(o.delivery)} bilan</small>` : ""}<small>${o.status || "Yangi"} • ${o.date ? new Date(o.date).toLocaleString("uz-UZ") : ""}</small></div><button class="delete-order edit-btn" onclick="editOrder(${o.id})" title="Edit"><i class="fa-solid fa-pen"></i></button><button class="delete-order" onclick="removeOrder(${o.id})" title="O‘chirish"><i class="fa-solid fa-trash"></i></button></div>`).join("") }) }
+        function removeOrder(id) { if (!confirm("Bu buyurtmani o‘chirasizmi?")) return; const a = JSON.parse(localStorage.getItem("fm_orders") || "[]").filter(x => x.id !== id); localStorage.setItem("fm_orders", JSON.stringify(a)); fetch("/api/orders/" + encodeURIComponent(id), { method: "DELETE" }).catch(() => { }); renderOrders() }
+        $("search").oninput = renderOrders; $("refresh").onclick = () => { renderProducts(); renderOrders() }; $("logout").onclick = () => { localStorage.removeItem("fm_current_user"); location.href = "./login.html" };
+        (async () => { await syncProducts(); renderProducts(); renderOrders(); setInterval(renderOrders, 5000) })();
+
+    </script>
+<script src="./language.js"></script>
+</body>
+
+</html>

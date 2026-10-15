@@ -1,0 +1,2050 @@
+/* =====================================================================
+   FUTBOL MARKET — yagona dizayn tizimi
+   Sahifalar: index (bosh), login, shop (do'kon), admin
+   ===================================================================== */
+
+/* ---------- 1. TOKENLAR ---------- */
+:root {
+    --lime: #c6f135;
+    --lime-dark: #a8d612;
+    --lime-ink: #6f8f00;
+    /* oq fonda o'qiladigan lime matn */
+    --ink: #0d0d0d;
+    --gray: #5c5c5c;
+    --muted: #8a8a85;
+    --bg: #f4f5f0;
+    --surface: #ffffff;
+    --surface-2: #f0f1ec;
+    --line: #e5e6e0;
+    --danger: #d33;
+    --danger-bg: #fff0f0;
+
+    --r-sm: 12px;
+    --r-md: 18px;
+    --r-lg: 24px;
+    --r-pill: 999px;
+
+    --shadow-sm: 0 6px 18px rgba(0, 0, 0, .06);
+    --shadow-md: 0 20px 45px rgba(0, 0, 0, .10);
+    --shadow-lg: 0 35px 90px rgba(0, 0, 0, .35);
+
+    --header-h: 72px;
+    --gutter: clamp(16px, 4vw, 48px);
+    --container: 1200px;
+}
+
+/* ---------- 2. BAZA ---------- */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+::selection {
+    background: var(--lime-dark);
+    color: #292828;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--lime-dark);
+    border-radius: var(--r-pill);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ---------- 3. UMUMIY KOMPONENTLAR ---------- */
+
+/* Tugmalar */
+.btn,
+.cta-primary,
+.dark-btn,
+.refresh-btn,
+.confirm-btn,
+.auth-submit,
+.buy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0;
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+    transition: background .2s, color .2s, transform .2s, box-shadow .2s;
+}
+
+.btn:hover,
+.dark-btn:hover,
+.refresh-btn:hover,
+.confirm-btn:hover,
+.auth-submit:hover,
+.buy-btn:hover {
+    background: var(--lime);
+    color: var(--ink);
+    transform: translateY(-2px);
+}
+
+.btn {
+    font-size: 15px;
+    padding: 13px 30px;
+    border-radius: var(--r-pill);
+}
+
+.dark-btn,
+.refresh-btn {
+    font-size: 14px;
+    padding: 12px 18px;
+    border-radius: var(--r-sm);
+}
+
+.confirm-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: var(--r-sm);
+    font-size: 15px;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--lime-ink);
+}
+
+/* Header (shop / admin / login uchun umumiy) */
+.auth-header,
+.shop-header,
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: var(--header-h);
+    padding: 12px var(--gutter);
+}
+
+.shop-header,
+.admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.brand img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* ---------- 4. BOSH SAHIFA (index) ---------- */
+
+.tepa {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 56px;
+}
+
+.tepa .logo {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Hero */
+.ota {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    align-items: center;
+    gap: 30px;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 110px 56px 60px;
+    background: url(./ota.png) center / cover no-repeat;
+}
+
+.hero-left {
+    position: relative;
+    z-index: 2;
+    text-align: left;
+    border-radius: 30px;
+    background-color: #05050500;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 10px 22px;
+    border-radius: var(--r-pill);
+    margin-bottom: 26px;
+}
+
+.badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lime);
+}
+
+.hero-left .title {
+    font-size: clamp(44px, 6.2vw, 84px);
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -.02em;
+    margin-bottom: 24px;
+    color: var(--ink);
+}
+
+.hero-left .title .lime {
+    color: var(--lime-dark);
+}
+
+.subtitle {
+    font-size: 17px;
+    line-height: 1.65;
+    color: #3d3d3d;
+    margin-bottom: 34px;
+}
+
+.cta-row {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+.cta-row a {
+    text-decoration: none;
+}
+
+.cta-primary {
+    font-size: 16px;
+    padding: 17px 34px;
+    border-radius: var(--r-pill);
+}
+
+.cta-primary .arrow {
+    color: var(--lime);
+    font-size: 18px;
+}
+
+.cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(198, 241, 53, .45);
+}
+
+.hero-right {
+    position: relative;
+    z-index: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    min-height: 460px;
+}
+
+model-viewer {
+    width: 100%;
+    height: min(620px, 72vh);
+    min-height: 380px;
+    background: transparent;
+    --poster-color: transparent;
+}
+
+/* Kategoriyalar bo'limi */
+.ota2 {
+    background: #050505 url(./ota2.png) center / cover no-repeat;
+    padding: clamp(64px, 9vw, 110px) clamp(20px, 5vw, 56px);
+    color: #fff;
+}
+
+.ota2-inner {
+    max-width: var(--container);
+    margin: 0 auto;
+}
+
+.ota2 h1 {
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    color: #fff;
+}
+
+.ota2 p {
+    margin-top: 12px;
+    font-size: 17px;
+    color: #bdbdbd;
+}
+
+.bola {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: clamp(40px, 6vw, 72px);
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 18px 18px;
+    border: 2px solid var(--lime-dark);
+    border-radius: var(--r-lg);
+    background: rgba(22, 22, 22, .55);
+    backdrop-filter: blur(6px);
+    text-decoration: none;
+    color: #fff;
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    border-color: var(--lime);
+    box-shadow: 0 18px 40px rgba(168, 214, 18, .22);
+}
+
+.card-img {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.ppp {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+}
+
+.f {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.bt {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--lime-dark);
+    transition: background .2s;
+}
+
+.bt img {
+    width: 16px;
+    height: auto;
+}
+
+.card:hover .bt {
+    background: var(--lime-dark);
+}
+
+/* ---------- 5. KIRISH SAHIFASI (login) ---------- */
+
+.auth-page {
+    background: #080908;
+    color: #fff;
+}
+
+.auth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: #080908;
+    pointer-events: none;
+}
+
+.auth-bg span {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(198, 241, 53, .45);
+    box-shadow: 0 0 90px rgba(198, 241, 53, .12);
+}
+
+.auth-bg span:nth-child(1) {
+    width: 620px;
+    height: 620px;
+    right: -160px;
+    top: -140px;
+}
+
+.auth-bg span:nth-child(2) {
+    width: 380px;
+    height: 380px;
+    left: -130px;
+    bottom: -120px;
+}
+
+.auth-bg span:nth-child(3) {
+    width: 150px;
+    height: 150px;
+    right: 24%;
+    bottom: 12%;
+    background: rgba(198, 241, 53, .08);
+}
+
+.auth-header {
+    position: relative;
+    z-index: 2;
+}
+
+/* Logotipdagi "Futbol" qora, shuning uchun qorong'i fonda oq kapsulada */
+.auth-header .brand {
+    background: #fff;
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+}
+
+.auth-header .brand img {
+    height: 34px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .18);
+    padding: 11px 20px;
+    border-radius: var(--r-pill);
+    transition: background .2s, color .2s;
+}
+
+.back-link:hover {
+    background: var(--lime);
+    color: var(--ink);
+}
+
+.auth-wrap {
+    position: relative;
+    z-index: 2;
+    min-height: calc(100vh - var(--header-h));
+    min-height: calc(100svh - var(--header-h));
+    display: grid;
+    place-items: center;
+    padding: 24px 20px 48px;
+}
+
+.auth-card {
+    width: min(470px, 100%);
+    background: rgba(255, 255, 255, .97);
+    color: var(--ink);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--surface-2);
+    padding: 5px;
+    border-radius: 14px;
+    margin-bottom: 28px;
+}
+
+.auth-tab {
+    border: 0;
+    background: transparent;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    color: #777;
+    transition: .2s;
+}
+
+.auth-tab.active {
+    background: var(--ink);
+    color: var(--lime);
+}
+
+.auth-title {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.auth-title h1 {
+    font-size: 25px;
+    line-height: 1.2;
+}
+
+.auth-title p {
+    font-size: 13px;
+    color: #777;
+    margin-top: 3px;
+}
+
+.auth-icon {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    background: var(--lime);
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.auth-form label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: 5px;
+}
+
+.input-line {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.input-line:focus-within {
+    border-color: var(--lime-dark);
+    box-shadow: 0 0 0 4px rgba(198, 241, 53, .22);
+}
+
+.input-line i {
+    color: #999;
+}
+
+.input-line input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 15px;
+}
+
+.eye {
+    border: 0;
+    background: transparent;
+    color: #777;
+    padding: 4px;
+}
+
+.auth-submit {
+    margin-top: 12px;
+    padding: 17px;
+    border-radius: 14px;
+    font-weight: 800;
+    letter-spacing: .03em;
+}
+
+.form-message {
+    min-height: 20px;
+    color: var(--danger);
+    font-size: 13px;
+    text-align: center;
+}
+
+.hint {
+    font-size: 11.5px;
+    color: #888;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ---------- 6. DO'KON (shop) ---------- */
+
+.shop-page,
+.admin-page {
+    background: var(--bg);
+    color: var(--ink);
+}
+
+.shop-main,
+.admin-main {
+    width: min(var(--container), calc(100% - 2 * var(--gutter)));
+    margin: 0 auto;
+    padding: 28px 0 80px;
+}
+
+/* Banner */
+.shop-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 340px;
+    padding: clamp(28px, 5vw, 56px);
+    background: var(--ink);
+    color: #fff;
+    border-radius: 28px;
+    overflow: hidden;
+}
+
+.shop-hero::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    right: -130px;
+    top: -120px;
+    border-radius: 50%;
+    border: 45px solid var(--lime);
+    opacity: .85;
+}
+
+.shop-hero-text {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+}
+
+.shop-hero .eyebrow {
+    color: var(--lime-dark);
+}
+
+.shop-hero h1 {
+    margin: 14px 0 18px;
+    font-size: clamp(34px, 5vw, 62px);
+    font-weight: 900;
+    line-height: 1.02;
+    letter-spacing: -.01em;
+    color: #fff;
+}
+
+.shop-hero h1 em {
+    font-style: normal;
+    color: var(--lime);
+}
+
+.shop-hero p {
+    max-width: 560px;
+    color: #bdbdbd;
+    line-height: 1.65;
+}
+
+.hero-ball {
+    position: relative;
+    z-index: 3;
+    flex: none;
+    font-size: clamp(80px, 11vw, 120px);
+    line-height: 1;
+    transform: rotate(-12deg);
+    margin-right: clamp(0px, 4vw, 60px);
+}
+
+/* Katalog sarlavhasi + filtrlar */
+.shop-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 44px 0 22px;
+}
+
+.shop-toolbar h2 {
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.15;
+    margin-top: 6px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter {
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid #ddd;
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.filter:hover {
+    border-color: var(--ink);
+}
+
+.filter.active {
+    background: var(--ink);
+    color: var(--lime);
+    border-color: var(--ink);
+}
+
+/* Mahsulot kartochkalari */
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: transform .25s, box-shadow .25s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.product-img {
+    position: relative;
+    height: 280px;
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    overflow: hidden;
+}
+
+.product-img span {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    z-index: 2;
+    padding: 7px 12px;
+    background: var(--ink);
+    color: var(--lime);
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+
+.product-img img {
+    width: 78%;
+    height: 85%;
+    object-fit: contain;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 18px 20px 20px;
+}
+
+.product-info small {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.product-info h3 {
+    margin: 6px 0 18px;
+    min-height: 2.6em;
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+.product-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.product-bottom strong {
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+.buy-btn {
+    padding: 12px 15px;
+    border-radius: var(--r-sm);
+    font-size: 12.5px;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .7);
+    backdrop-filter: blur(7px);
+}
+
+.modal-card {
+    position: relative;
+    width: min(520px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 30px;
+    background: var(--surface);
+    border-radius: 26px;
+    box-shadow: var(--shadow-lg);
+}
+
+.close {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface-2);
+    transition: background .2s;
+}
+
+.close:hover {
+    background: var(--lime);
+}
+
+.modal-card h2 {
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 8px 44px 6px 0;
+}
+
+.modal-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--lime-ink);
+    margin-bottom: 14px;
+}
+
+.field-label {
+    display: block;
+    margin: 18px 0 9px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.size-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+    gap: 8px;
+}
+
+.size-btn {
+    padding: 11px 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: .15s;
+}
+
+.size-btn:hover {
+    border-color: var(--ink);
+}
+
+.size-btn.active {
+    background: var(--ink);
+    color: var(--lime);
+    border-color: var(--ink);
+}
+
+.quantity-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: var(--r-sm);
+}
+
+.quantity-box button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--surface-2);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    transition: background .2s, transform .1s;
+}
+
+.quantity-box button:hover {
+    background: var(--lime);
+}
+
+.quantity-box button:active {
+    transform: scale(.92);
+}
+
+#qtyValue {
+    min-width: 44px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.custom-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: 16px;
+}
+
+.custom-box h3 {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.custom-box p,
+.modal-note {
+    font-size: 12.5px;
+    color: #777;
+}
+
+.yes-no {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 13px;
+}
+
+.yes-no button {
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-weight: 800;
+    transition: .15s;
+}
+
+.yes-no button.selected {
+    background: var(--lime);
+    border-color: var(--lime);
+}
+
+.text-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 13px;
+    outline: 0;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.text-input:focus {
+    border-color: var(--lime-dark);
+    box-shadow: 0 0 0 4px rgba(198, 241, 53, .22);
+}
+
+.success-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--lime);
+    border-radius: 50%;
+    font-size: 30px;
+    font-weight: 900;
+}
+
+#summary {
+    margin: 12px 0 4px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: 14px;
+    color: #333;
+    line-height: 1.9;
+    font-size: 14.5px;
+}
+
+.toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 2000;
+    max-width: calc(100% - 48px);
+    padding: 15px 20px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r-sm);
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity .3s, transform .3s;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---------- 7. ADMIN ---------- */
+
+.admin-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 13px;
+    background: #eef8cf;
+    color: #557000;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.admin-welcome {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.admin-welcome h1 {
+    margin: 8px 0 6px;
+    font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.1;
+}
+
+.admin-welcome p {
+    color: #777;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.admin-stat {
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+}
+
+.admin-stat span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+}
+
+.admin-stat b {
+    font-size: 27px;
+    line-height: 1.1;
+}
+
+.admin-product-box,
+.orders-box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    margin-bottom: 24px;
+}
+
+.admin-product-box {
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+}
+
+.orders-box {
+    overflow: hidden;
+}
+
+.orders-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 22px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-product-box .orders-head {
+    padding: 0;
+    border: 0;
+}
+
+.orders-head h2 {
+    font-size: 22px;
+    line-height: 1.25;
+}
+
+.orders-head p {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #888;
+}
+
+.orders-head input {
+    width: min(320px, 100%);
+    padding: 12px 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 11px;
+    outline: 0;
+}
+
+.orders-head input:focus {
+    border-color: var(--lime-dark);
+    box-shadow: 0 0 0 3px rgba(198, 241, 53, .2);
+}
+
+/* Mahsulot qo'shish formasi */
+.product-admin-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+}
+
+.admin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-field label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-field input,
+.admin-field select {
+    width: 100%;
+    padding: 14px 15px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 13px;
+    outline: 0;
+}
+
+.admin-field input:focus,
+.admin-field select:focus {
+    border-color: var(--lime-dark);
+    box-shadow: 0 0 0 3px rgba(198, 241, 53, .2);
+}
+
+.admin-field input[type="file"] {
+    padding: 9px 12px;
+}
+
+.admin-field input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    background: var(--ink);
+    color: #fff;
+    border: 0;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-wide {
+    grid-column: 1 / -1;
+}
+
+.custom-check {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.custom-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--ink);
+}
+
+.admin-add-btn {
+    grid-column: 1 / -1;
+    width: auto;
+    max-width: 320px;
+    margin-top: 0;
+}
+
+.admin-message {
+    margin-top: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--lime-ink);
+}
+
+/* Mahsulotlar ro'yxati */
+.admin-product-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.admin-product-row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto 36px 36px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid #ecece7;
+    border-radius: var(--r-md);
+}
+
+.admin-product-thumb {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+.admin-product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.admin-product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.admin-product-info b {
+    font-size: 15px;
+}
+
+.admin-product-info span,
+.admin-product-info small {
+    font-size: 12px;
+    color: #777;
+}
+
+.admin-product-row>strong {
+    white-space: nowrap;
+}
+
+/* Edit / o'chirish tugmalari */
+.delete-order {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 10px;
+    background: var(--danger-bg);
+    color: var(--danger);
+    transition: background .2s, color .2s;
+}
+
+.delete-order:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+.delete-order.edit-btn {
+    background: #eef8cf;
+    color: #557000;
+}
+
+.delete-order.edit-btn:hover {
+    background: var(--lime);
+    color: var(--ink);
+}
+
+/* Buyurtmalar */
+.order-row {
+    display: grid;
+    grid-template-columns: 44px 1.1fr 1.5fr 1fr 1.1fr 36px 36px;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 22px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-row:last-child {
+    border-bottom: 0;
+}
+
+.order-avatar {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    color: var(--lime);
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+.order-user,
+.order-product,
+.order-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.order-user span,
+.order-product span,
+.order-custom span,
+.order-price small {
+    font-size: 11.5px;
+    color: #888;
+}
+
+.order-price {
+    font-weight: 800;
+}
+
+.order-price small {
+    display: block;
+    margin-top: 3px;
+    font-weight: 400;
+}
+
+.empty-orders {
+    padding: 70px 20px;
+    text-align: center;
+    color: #888;
+}
+
+.empty-orders i {
+    font-size: 42px;
+    color: #bbb;
+}
+
+.empty-orders h3 {
+    margin: 15px 0 5px;
+    color: #333;
+}
+
+/* ---------- 8. RESPONSIVE ---------- */
+
+@media (max-width: 1100px) {
+    .ota {
+        grid-template-columns: minmax(0, 1fr);
+        padding-top: 100px;
+    }
+
+    .hero-right {
+        min-height: 380px;
+    }
+
+    /* bitta ustunda matn fon rasmidagi qora to'lqin ustiga tushadi — o'qilishi uchun panel */
+    .hero-left {
+        background: rgba(255, 255, 255, .82);
+        backdrop-filter: blur(10px);
+        border-radius: var(--r-lg);
+    }
+
+    .bola {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 850px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .shop-toolbar,
+    .orders-head,
+    .admin-welcome {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .orders-head input {
+        width: 100%;
+    }
+
+    .admin-welcome .refresh-btn {
+        align-self: flex-start;
+    }
+
+    /* buyurtma qatori: ikki qavatli */
+    .order-row {
+        grid-template-columns: 44px 1fr 36px 36px;
+        grid-template-areas:
+            "av user edit del"
+            ".  prod prod prod"
+            ".  cust cust cust"
+            ".  price price price";
+        row-gap: 10px;
+    }
+
+    .order-avatar {
+        grid-area: av;
+    }
+
+    .order-user {
+        grid-area: user;
+    }
+
+    .order-product {
+        grid-area: prod;
+    }
+
+    .order-custom {
+        grid-area: cust;
+    }
+
+    .order-price {
+        grid-area: price;
+    }
+
+    .delete-order.edit-btn {
+        grid-area: edit;
+    }
+
+    .delete-order:not(.edit-btn) {
+        grid-area: del;
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --header-h: 64px;
+    }
+
+    .tepa {
+        padding: 14px 20px;
+    }
+
+    .tepa .logo {
+        height: 36px;
+    }
+
+    .btn {
+        padding: 11px 24px;
+        font-size: 14px;
+    }
+
+    .ota {
+        padding: 90px 22px 40px;
+        gap: 10px;
+    }
+
+    .hero-right {
+        order: -1;
+        min-height: 300px;
+    }
+
+    .hero-left {
+        padding: 22px;
+    }
+
+    .hero-left .title {
+        font-size: clamp(30px, 8.5vw, 56px);
+    }
+
+    .subtitle {
+        font-size: 15.5px;
+    }
+
+    model-viewer {
+        height: 340px;
+        min-height: 300px;
+    }
+
+    .cta-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .brand img {
+        height: 34px;
+    }
+
+    .header-actions {
+        gap: 10px;
+    }
+
+    .header-actions>span:not(.admin-pill) {
+        display: none;
+    }
+
+    .shop-hero {
+        min-height: 300px;
+        border-radius: 22px;
+    }
+
+    .shop-hero::after {
+        width: 260px;
+        height: 260px;
+        border-width: 30px;
+        right: -110px;
+        top: -90px;
+    }
+
+    .hero-ball {
+        display: none;
+    }
+
+    .products {
+        grid-template-columns: 1fr;
+    }
+
+    .product-img {
+        height: 280px;
+    }
+
+    .auth-card {
+        padding: 22px;
+        border-radius: 22px;
+    }
+
+    .modal-card {
+        padding: 24px 20px;
+    }
+
+    .stats-grid {
+        gap: 10px;
+    }
+
+    .admin-stat {
+        padding: 16px;
+    }
+
+    .admin-stat b {
+        font-size: 21px;
+    }
+
+    .admin-product-box {
+        padding: 20px;
+    }
+
+    .product-admin-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-wide,
+    .custom-check,
+    .admin-add-btn {
+        grid-column: auto;
+    }
+
+    .admin-add-btn {
+        max-width: none;
+        width: 100%;
+    }
+
+    .admin-product-row {
+        grid-template-columns: 52px 1fr 36px 36px;
+        grid-template-areas:
+            "thumb info edit del"
+            "thumb price price price";
+        row-gap: 6px;
+    }
+
+    .admin-product-thumb {
+        grid-area: thumb;
+        width: 52px;
+        height: 52px;
+    }
+
+    .admin-product-info {
+        grid-area: info;
+    }
+
+    .admin-product-row>strong {
+        grid-area: price;
+    }
+
+    .admin-product-row .edit-btn {
+        grid-area: edit;
+    }
+
+    .admin-product-row .delete-order:not(.edit-btn) {
+        grid-area: del;
+    }
+
+    .order-row {
+        padding: 14px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .badge {
+        display: none;
+    }
+
+    .bola {
+        grid-template-columns: 1fr;
+    }
+
+    .card-img {
+        height: 220px;
+    }
+
+    .toast {
+        right: 16px;
+        left: 16px;
+        bottom: 16px;
+        max-width: none;
+    }
+}
+
+/* ---------- Savat ---------- */
+.cart-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--lime);
+    color: var(--ink);
+    border: 0;
+    border-radius: var(--r-sm);
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform .2s, background .2s;
+}
+
+.cart-btn:hover {
+    background: var(--lime-dark);
+}
+
+.cart-count {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    color: var(--lime);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+}
+
+.cart-btn.bump {
+    animation: bump .45s ease;
+}
+
+@keyframes bump {
+    40% {
+        transform: scale(1.12);
+    }
+}
+
+.cart-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(5px);
+}
+
+.cart-panel {
+    width: min(440px, 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    animation: slideIn .28s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(40px);
+        opacity: 0;
+    }
+}
+
+.cart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.cart-head h2 {
+    font-size: 24px;
+}
+
+.cart-close {
+    position: static;
+}
+
+.cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 24px;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 78px 1fr 34px;
+    gap: 14px;
+    align-items: start;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-thumb {
+    width: 78px;
+    height: 78px;
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cart-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.cart-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.cart-info b {
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.cart-info>span {
+    font-size: 12px;
+    color: #777;
+}
+
+.cart-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.cart-row strong {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.mini-qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.mini-qty button {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: var(--surface-2);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.mini-qty button:hover {
+    background: var(--lime);
+}
+
+.mini-qty span {
+    min-width: 34px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.cart-remove {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.cart-remove:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+.cart-empty {
+    padding: 80px 10px;
+    text-align: center;
+    color: #888;
+}
+
+.cart-empty i {
+    font-size: 44px;
+    color: #c8c8c2;
+}
+
+.cart-empty h3 {
+    margin: 14px 0 6px;
+    color: #333;
+}
+
+.cart-foot {
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+}
+
+.cart-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+.cart-total strong {
+    font-size: 24px;
+}
+
+.cart-foot .confirm-btn {
+    margin-top: 16px;
+}
+
+.confirm-btn:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.cart-clear {
+    display: block;
+    margin: 14px auto 0;
+    border: 0;
+    background: none;
+    color: #888;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .cart-btn span {
+        display: none;
+    }
+
+    .header-actions span:not(.admin-pill):not(.cart-count) {
+        display: none;
+    }
+}
+
+/* ---------- Yetkazib berish oynasi ---------- */
+.text-input.area {
+    height: 84px;
+    padding: 12px 14px;
+    resize: vertical;
+    font: inherit;
+    line-height: 1.4;
+}
+
+.loc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px dashed #bbb;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.loc-btn:hover {
+    border-color: var(--ink);
+}
+
+.loc-btn.done {
+    background: var(--lime);
+    border: 1px solid var(--lime);
+}
+
+.card-note {
+    margin-top: 8px;
+}
+
+#checkoutModal .form-message {
+    margin-top: 14px;
+    text-align: left;
+}
+
+#checkoutModal .confirm-btn {
+    margin-top: 10px;
+}
+
+.order-user a,
+.order-product a {
+    color: var(--lime-ink);
+    font-weight: 700;
+}
+
+.cart-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.cart-total {
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+
+/* ---------- Telegram bot havolasi (admin header) ---------- */
+.tg-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid #cfe3f5;
+    background: #eaf5ff;
+    color: #1b7bc4;
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .2s, color .2s;
+}
+
+.tg-link:hover {
+    background: #229ed9;
+    color: #fff;
+}
+
+.tg-link i {
+    font-size: 17px;
+}
+
+/* Telegram bot havolasi (bosh sahifa) */
+.tepa-actions { display: flex; align-items: center; gap: 10px; }
+.tepa-actions a { text-decoration: none; }
+@media (max-width: 480px) { .tepa .tg-link { display: none; } }

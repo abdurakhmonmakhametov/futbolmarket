@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bot sozlash — Futbol Market</title>
+  <!--
+    Botni Vercel'dagi sayt bilan bog'lash ("node setup-bot.js" bilan bir xil ish). Kompyuterda server kerak emas:
+    bu faylni kompyuterda ikki marta bosib oching, token va Mini App manzilini yozing, "Sozlash" ni bosing.
+    Brauzer to'g'ridan-to'g'ri api.telegram.org ga murojaat qiladi. Token hech qayerda saqlanmaydi.
+    DIQQAT: bu faylni hostingga YUKLAMANG (telegram-app papkasiga qo'ymang).
+  -->
+  <style>
+    :root { --bg: #070907; --card: #111511; --line: #262c26; --text: #f2f4ee; --muted: #9aa294; --neon: #d9ff00; --bad: #ff6b5b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 560px; margin: 0 auto; padding: 32px 16px 48px; }
+    h1 { margin: 0 0 4px; font-size: 26px; }
+    h1 b { color: var(--neon); }
+    p.lead { margin: 0 0 24px; color: var(--muted); }
+    label { display: block; margin: 16px 0 6px; font-weight: 600; font-size: 14px; color: var(--muted); }
+    input, textarea { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; }
+    textarea { resize: vertical; }
+    input:focus, textarea:focus { outline: 2px solid var(--neon); outline-offset: -1px; }
+    small { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; }
+    button { margin-top: 24px; width: 100%; min-height: 50px; border: 0; border-radius: 10px; background: var(--neon); color: #101400; font: 800 16px/1 inherit; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+    #log { margin: 20px 0 0; padding: 0; list-style: none; }
+    #log li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    #log li.bad { color: var(--bad); }
+    .next { margin-top: 28px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .next h2 { margin: 0 0 8px; font-size: 16px; }
+    .next ol { margin: 0; padding-left: 20px; color: var(--muted); }
+    code { color: var(--neon); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Futbol<b>Market</b> bot sozlash</h1>
+  <p class="lead">Bot Vercel’da ishlaydi — kompyuter yoqilishi shart emas. Deploydan keyin bir marta sozlang.</p>
+
+  <form id="f">
+    <label for="token">Bot token (@BotFather dan)</label>
+    <input id="token" type="password" autocomplete="off" placeholder="123456789:AA..." required>
+    <small>Token faqat api.telegram.org ga yuboriladi va hech qayerda saqlanmaydi.</small>
+
+    <label for="url">Sayt manzili (Vercel)</label>
+    <input id="url" type="url" placeholder="https://futbol-market.vercel.app" required>
+    <small>Bot shu saytning /api/telegram manzilida ishlaydi, do‘kon /telegram-app/ da ochiladi.</small>
+
+    <label for="btn">Menyu tugmasi matni</label>
+    <input id="btn" value="🛒 Do‘kon" maxlength="64">
+
+    <label for="desc">Bot tavsifi (Start bosishdan oldin ko‘rinadi)</label>
+    <textarea id="desc" rows="4" maxlength="512">⚽ Futbol Market — original formalar, butsalar, to‘plar va kuboklar.
+
+Pastdagi «🛒 Do‘kon» tugmasini bosing: mahsulotni tanlang, savatga qo‘shing va buyurtma bering. Forma orqasiga ism va raqam yozib beramiz.</textarea>
+
+    <label for="short">Qisqa tavsif (bot profilida)</label>
+    <input id="short" maxlength="120" value="⚽ Formalar, butsalar, to‘plar, kuboklar. «🛒 Do‘kon» tugmasini bosing.">
+
+    <button id="go" type="submit">Sozlash</button>
+  </form>
+
+  <ul id="log" aria-live="polite"></ul>
+
+  <div class="next" id="next" hidden>
+    <h2>Oxirgi qadam (tavsiya etiladi)</h2>
+    <ol>
+      <li>Telegramda <b>@BotFather</b> ni oching → <code>/mybots</code> → <b id="botName">botingiz</b></li>
+      <li><b>Bot Settings → Configure Mini App → Enable Mini App</b></li>
+      <li>Shu manzilni yuboring: <code id="urlOut"></code></li>
+    </ol>
+    <p style="margin:12px 0 0;color:var(--muted)">Shunda bot profilida katta <b>«Open»</b> tugmasi chiqadi va
+      <code id="link"></code> havolasi do‘konni to‘g‘ridan-to‘g‘ri ochadi.</p>
+  </div>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const log = (text, bad) => {
+    const li = document.createElement("li");
+    li.textContent = (bad ? "✗ " : "✓ ") + text;
+    if (bad) li.className = "bad";
+    $("log").appendChild(li);
+  };
+
+  // GET so'rov: brauzer CORS "preflight" yubormaydi (Telegram OPTIONS ni qo'llamaydi)
+  async function tg(token, method, params = {}) {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) q.set(k, typeof v === "object" ? JSON.stringify(v) : v);
+    const r = await fetch(`https://api.telegram.org/bot${token}/${method}?${q}`);
+    const j = await r.json();
+    if (!j.ok) throw new Error(`${method}: ${j.description}`);
+    return j.result;
+  }
+
+  $("f").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("log").innerHTML = "";
+    $("next").hidden = true;
+
+    const token = $("token").value.trim();
+    const site = $("url").value.trim().replace(/\/+$/, "");
+    if (!/^\d+:[\w-]{30,}$/.test(token)) return log("Token noto‘g‘ri ko‘rinadi. @BotFather bergan to‘liq tokenni qo‘ying.", true);
+    if (!/^https:\/\/[^\s/]+$/i.test(site)) return log("Manzil https:// bilan boshlanishi kerak (oxirida papkasiz).", true);
+    const url = site + "/telegram-app/";
+
+    $("go").disabled = true;
+    try {
+      const me = await tg(token, "getMe");
+      log(`Bot topildi: @${me.username}`);
+
+      // Telegram xabarlari Vercel'dagi /api/telegram ga boradi. Kalit api/_lib.js dagi webhookSecret() bilan bir xil.
+      const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("fm-webhook:" + token));
+      const secret = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 48);
+      await tg(token, "setWebhook", { url: site + "/api/telegram", secret_token: secret, allowed_updates: ["message", "callback_query"] });
+      log(`Webhook → ${site}/api/telegram`);
+
+      await tg(token, "setChatMenuButton", {
+        menu_button: { type: "web_app", text: $("btn").value.trim() || "🛒 Do‘kon", web_app: { url } }
+      });
+      log(`Menyu tugmasi → ${url}`);
+
+      await tg(token, "setMyDescription", { description: $("desc").value.trim() });
+      await tg(token, "setMyShortDescription", { short_description: $("short").value.trim() });
+      log("Bot tavsifi yozildi");
+
+      await tg(token, "setMyCommands", { commands: [
+        { command: "start", description: "Boshlash" },
+        { command: "shop", description: "Do‘konni ochish" },
+        { command: "help", description: "Yordam" }
+      ] });
+      log("Buyruqlar yozildi: /start /shop /help");
+
+      $("botName").textContent = "@" + me.username;
+      $("urlOut").textContent = url;
+      $("link").textContent = `t.me/${me.username}?startapp`;
+      $("next").hidden = false;
+      log(`Tayyor! Telegramda @${me.username} ni oching va «${$("btn").value.trim()}» tugmasini bosing.`);
+    } catch (err) {
+      log(/Failed to fetch/i.test(err.message) ? "Internetga ulanib bo‘lmadi." : err.message, true);
+    } finally {
+      $("go").disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

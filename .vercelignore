@@ -1,0 +1,18 @@
+# Vercel'ga yuklanmaydigan fayllar (maxfiy yoki faqat kompyuter uchun)
+.env
+.env.*
+.vscode
+data.json
+bot-state.json
+FUTBOL_MARKET_FIXED
+telegram-app.zip
+bot-setup.html
+START.bat
+index.js
+server.js
+setup-bot.js
+README.txt
+THEME_LANG_README.txt
+*.png.bak
+Снимок*
+\#U0421*

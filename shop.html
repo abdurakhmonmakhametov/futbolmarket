@@ -1,0 +1,1360 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Futbol Market — Xarid</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="./neon-theme.css">
+</head>
+
+<body class="shop-page">
+
+<header class="shop-header">
+  <a class="brand" href="./index.html">
+    <img src="./logo.png" alt="Futbol Market">
+  </a>
+
+  <div class="header-actions">
+    <span id="userName"></span>
+
+    <button id="cartBtn" class="cart-btn" type="button" aria-label="Savat">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Savat</span>
+      <b id="cartCount" class="cart-count">0</b>
+    </button>
+
+    <a class="dark-btn" href="https://t.me/futbolmarket_bot" target="_blank" rel="noopener">
+      <i class="fa-brands fa-telegram"></i>
+      Telegram
+    </a>
+
+    <button id="logout" class="dark-btn">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Chiqish
+    </button>
+  </div>
+</header>
+
+<main class="shop-main">
+
+  <section class="shop-hero">
+    <div class="shop-hero-text">
+      <span class="eyebrow">FUTBOL MARKET</span>
+      <h1>Maydondagi uslubingizni <em>o‘zingiz tanlang.</em></h1>
+      <p>Original formalar, butsalar, to‘plar va kuboklar. O‘lchamingizni tanlang va buyurtma bering.</p>
+    </div>
+    <div class="hero-ball" aria-hidden="true">⚽</div>
+  </section>
+
+
+  <div class="shop-toolbar">
+
+    <div>
+      <span class="eyebrow">KATALOG</span>
+      <h2>Futbol buyumlari</h2>
+    </div>
+
+    <div class="filters" id="filters"></div>
+
+  </div>
+
+
+  <section class="products" id="products"></section>
+
+</main>
+
+
+<!-- ================= ORDER MODAL ================= -->
+
+<div class="modal hidden" id="orderModal">
+
+  <div class="modal-card">
+
+    <button class="close" id="closeModal">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+
+    <!-- STEP 1 -->
+
+    <div id="orderStep1">
+
+      <span class="eyebrow">BUYURTMA</span>
+
+      <h2 id="modalProduct"></h2>
+
+      <p class="modal-price" id="modalPrice"></p>
+
+
+      <!-- SIZE -->
+
+      <label class="field-label">
+        O‘lcham / variant
+      </label>
+
+      <div class="size-grid" id="sizeGrid"></div>
+
+
+      <!-- QUANTITY -->
+
+      <label class="field-label">
+        Miqdor
+      </label>
+
+      <div class="quantity-box">
+
+        <button type="button" id="qtyMinus">
+          −
+        </button>
+
+        <span id="qtyValue">1</span>
+
+        <button type="button" id="qtyPlus">
+          +
+        </button>
+
+      </div>
+
+
+      <!-- CUSTOM -->
+
+      <div id="customQuestion" class="custom-box hidden">
+
+        <h3>
+          Formaning orqasiga ism yozdirasizmi?
+        </h3>
+
+        <p>
+          Ism va raqamni forma ustiga yozib beramiz: <b>+50 000 so‘m</b> (har bir forma uchun).
+        </p>
+
+        <div class="yes-no">
+
+          <button type="button" id="customYes">
+            HA
+          </button>
+
+          <button type="button" id="customNo">
+            YO‘Q
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <button class="confirm-btn" id="continueOrder">
+
+        Davom etish
+
+        <i class="fa-solid fa-arrow-right"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- STEP 2 -->
+
+    <div id="orderStep2" class="hidden">
+
+      <span class="eyebrow">
+        FORMA DIZAYNI
+      </span>
+
+      <h2>
+        Orqa tomoniga nima yozamiz?
+      </h2>
+
+      <p class="modal-note">
+        Ism 12 ta belgigacha, raqam 1–99 oralig‘ida.
+      </p>
+
+
+      <label class="field-label">
+        Ism
+      </label>
+
+      <input
+        class="text-input"
+        id="shirtName"
+        maxlength="12"
+        placeholder="MASALAN: ASAD"
+      >
+
+
+      <label class="field-label">
+        Raqam
+      </label>
+
+      <input
+        class="text-input"
+        id="shirtNumber"
+        type="number"
+        min="1"
+        max="99"
+        placeholder="10"
+      >
+
+
+      <button class="confirm-btn" id="saveCustom">
+
+        Saqlash va davom etish
+
+        <i class="fa-solid fa-arrow-right"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- STEP 3 -->
+
+    <div id="orderStep3" class="hidden">
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+      <h2>Savatga qo‘shamizmi?</h2>
+
+      <p id="summary"></p>
+
+
+      <button class="confirm-btn" id="addToCart" type="button">Savatga qo‘shish <i class="fa-solid fa-basket-shopping"></i></button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= CHECKOUT ================= -->
+<div class="modal hidden" id="checkoutModal">
+  <div class="modal-card">
+    <button class="close" id="checkoutClose" type="button" aria-label="Yopish"><i class="fa-solid fa-xmark"></i></button>
+
+    <h2>Yetkazib berish</h2>
+    <p class="modal-note" id="checkoutSum"></p>
+
+    <label class="field-label" for="coPhone">Telefon raqam</label>
+    <input class="text-input" id="coPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67">
+
+    <label class="field-label" for="coAddress">Manzil</label>
+    <textarea class="text-input area" id="coAddress" autocomplete="street-address" placeholder="Shahar, tuman, ko‘cha, uy raqami"></textarea>
+
+    <button class="loc-btn" id="coLocate" type="button">
+      <i class="fa-solid fa-location-dot"></i> <span id="coLocText">Joylashuvimni yuborish</span>
+    </button>
+
+    <label class="field-label">To‘lov usuli</label>
+    <div class="yes-no">
+      <button type="button" id="payCash">Naqd pul</button>
+      <button type="button" id="payCard">Karta</button>
+    </div>
+
+    <div id="cardBox" class="hidden">
+      <label class="field-label" for="coCard">Karta raqami</label>
+      <input class="text-input" id="coCard" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="8600 0000 0000 0000">
+      <p class="modal-note card-note">Xavfsizlik uchun faqat oxirgi 4 ta raqam saqlanadi. CVV va amal qilish muddati so‘ralmaydi.</p>
+    </div>
+
+    <div id="coError" class="form-message"></div>
+
+    <button class="confirm-btn" id="coConfirm" type="button">Buyurtmani tasdiqlash <i class="fa-solid fa-check"></i></button>
+  </div>
+</div>
+
+<!-- ================= CART ================= -->
+<div class="cart-overlay hidden" id="cartOverlay">
+  <aside class="cart-panel" role="dialog" aria-label="Savat">
+    <div class="cart-head">
+      <h2>Savat</h2>
+      <button class="close cart-close" id="cartClose" type="button" aria-label="Yopish"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot" id="cartFoot">
+      <div class="cart-line"><span>Mahsulotlar</span><span id="cartSub">0 so‘m</span></div>
+      <div class="cart-line"><span>Yetkazib berish</span><span id="cartDelivery">0 so‘m</span></div>
+      <div class="cart-total"><span>Jami</span><strong id="cartTotal">0 so‘m</strong></div>
+      <button class="confirm-btn" id="checkout" type="button">Hammasini sotib olish <i class="fa-solid fa-check"></i></button>
+      <button class="cart-clear" id="cartClear" type="button">Savatni tozalash</button>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+
+/* ================= USER ================= */
+
+const user = JSON.parse(
+  localStorage.getItem("fm_current_user") || "null"
+);
+
+if (!user) {
+
+  location.href = "./login.html";
+
+}
+
+if (user.role === "admin") {
+
+  location.href = "./admin.html";
+
+}
+
+$("userName").textContent =
+  "Salom, " + (user?.name || "Futbolchi") + " 👋";
+
+
+/* ================= PRODUCTS ================= */
+
+const defaultProducts = [
+
+  {
+    id: 1,
+    name: "Real Madrid Uy Formasi",
+    cat: "Forma",
+    price: 899000,
+    img: "./real.png",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    custom: true
+  },
+
+  {
+    id: 2,
+    name: "Real Madrid Mehmon Formasi",
+    cat: "Forma",
+    price: 899000,
+    img: "./logo.png",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    custom: true
+  },
+
+  {
+    id: 3,
+    name: "Professional Futbol Butsasi",
+    cat: "Butsa",
+    price: 749000,
+    img: "./butsa.png",
+    sizes: ["39", "40", "41", "42", "43", "44", "45", "46"],
+    custom: false
+  },
+
+  {
+    id: 4,
+    name: "Match Futbol To‘pi",
+    cat: "To‘p",
+    price: 299000,
+    img: "./top.png",
+    sizes: ["5-razmer"],
+    custom: false
+  },
+
+  {
+    id: 5,
+    name: "Chempionlar Kubogi",
+    cat: "Kubok",
+    price: 499000,
+    img: "./kubog.png",
+    sizes: ["Standart"],
+    custom: false
+  },
+
+  {
+    id: 6,
+    name: "Futbol Forma Premium",
+    cat: "Forma",
+    price: 799000,
+    img: "./ota.png",
+    sizes: ["S", "M", "L", "XL"],
+    custom: true
+  }
+
+];
+
+
+function getProducts() {
+
+  const saved = JSON.parse(
+    localStorage.getItem("fm_products") || "null"
+  );
+
+  return Array.isArray(saved) && saved.length
+    ? saved
+    : defaultProducts;
+
+}
+
+
+let products = getProducts();
+
+
+/* ================= SERVER PRODUCTS ================= */
+
+async function syncServerProducts() {
+
+  try {
+
+    const response =
+      await fetch("/api/products");
+
+    if (!response.ok) return;
+
+    const data =
+      await response.json();
+
+    if (Array.isArray(data) && data.length) {
+
+      localStorage.setItem(
+        "fm_products",
+        JSON.stringify(data)
+      );
+
+      products = data;
+
+      setupFilters();
+      render();
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "Server products ishlamadi, localStorage ishlatildi."
+    );
+
+  }
+
+}
+
+syncServerProducts();
+
+
+/* ================= ORDER VARIABLES ================= */
+
+let selected = null;
+
+let selectedSize = null;
+
+let quantity = 1;
+
+let custom = {
+
+  yes: false,
+
+  name: "",
+
+  number: ""
+
+};
+
+
+/* ================= MONEY ================= */
+
+const DELIVERY_FEE = 10000;   // yetkazib berish (bitta buyurtma uchun)
+const PRINT_FEE = 50000;      // forma orqasiga ism/raqam yozish (har bir forma uchun)
+
+function unitPrice() {
+  return Number(selected.price) + (custom.yes ? PRINT_FEE : 0);
+}
+
+function refreshModalPrice() {
+  if (selected) $("modalPrice").textContent = money(unitPrice() * quantity);
+}
+
+function money(number) {
+
+  return new Intl.NumberFormat("uz-UZ")
+    .format(number) + " so‘m";
+
+}
+
+
+/* ================= FILTERS ================= */
+
+function setupFilters() {
+
+  const categories = [
+    "Barchasi",
+    ...new Set(products.map(p => p.cat))
+  ];
+
+  $("filters").innerHTML =
+    categories.map((cat, index) => `
+
+      <button
+        class="filter ${index === 0 ? "active" : ""}"
+        data-cat="${cat}"
+        type="button"
+      >
+        ${cat}
+      </button>
+
+    `).join("");
+
+
+  document
+    .querySelectorAll(".filter")
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        document
+          .querySelectorAll(".filter")
+          .forEach(x =>
+            x.classList.remove("active")
+          );
+
+        button.classList.add("active");
+
+        render(button.dataset.cat);
+
+      };
+
+    });
+
+}
+
+
+/* ================= RENDER PRODUCTS ================= */
+
+function render(category = "Barchasi") {
+
+  products = getProducts();
+
+  const filtered =
+    products.filter(product =>
+      category === "Barchasi" ||
+      product.cat === category
+    );
+
+
+  $("products").innerHTML =
+    filtered.map(product => `
+
+      <article class="product-card">
+
+        <div class="product-img">
+
+          <span>
+            ${product.cat}
+          </span>
+
+          <img
+            src="${product.img}"
+            alt="${product.name}"
+            onerror="this.src='./card.png'"
+          >
+
+        </div>
+
+
+        <div class="product-info">
+
+          <small>
+            ${product.cat}
+          </small>
+
+          <h3>
+            ${product.name}
+          </h3>
+
+
+          <div class="product-bottom">
+
+            <strong>
+              ${money(product.price)}
+            </strong>
+
+
+            <button
+              class="buy-btn"
+              type="button"
+              onclick="startOrder('${product.id}')"
+            >
+
+              Sotib olish
+
+              <i class="fa-solid fa-arrow-right"></i>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    `).join("");
+
+}
+
+
+setupFilters();
+render();
+
+
+/* ================= START ORDER ================= */
+
+function startOrder(id) {
+
+  products = getProducts();
+
+
+  selected =
+    products.find(
+      product => String(product.id) === String(id)
+    );
+
+
+  if (!selected) {
+
+    toast("Mahsulot topilmadi.");
+
+    return;
+
+  }
+
+
+  selectedSize = null;
+
+  quantity = 1;
+
+
+  custom = {
+
+    yes: false,
+
+    name: "",
+
+    number: ""
+
+  };
+
+
+  $("qtyValue").textContent = "1";
+
+
+  $("modalProduct").textContent =
+    selected.name;
+
+  $("modalPrice").textContent =
+    money(selected.price);
+
+
+  /* SIZES */
+
+  $("sizeGrid").innerHTML =
+    selected.sizes.map(size => `
+
+      <button
+        type="button"
+        class="size-btn"
+        data-size="${size}"
+      >
+        ${size}
+      </button>
+
+    `).join("");
+
+
+  document
+    .querySelectorAll(".size-btn")
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        document
+          .querySelectorAll(".size-btn")
+          .forEach(x =>
+            x.classList.remove("active")
+          );
+
+        button.classList.add("active");
+
+        selectedSize =
+          button.dataset.size;
+
+      };
+
+    });
+
+
+  /* CUSTOM QUESTION */
+
+  $("customQuestion")
+    .classList
+    .toggle(
+      "hidden",
+      !selected.custom
+    );
+
+
+  $("customYes")
+    .classList
+    .remove("selected");
+
+  $("customNo")
+    .classList
+    .remove("selected");
+
+
+  $("shirtName").value = "";
+
+  $("shirtNumber").value = "";
+
+
+  /* STEPS */
+
+  $("orderStep1")
+    .classList
+    .remove("hidden");
+
+  $("orderStep2")
+    .classList
+    .add("hidden");
+
+  $("orderStep3")
+    .classList
+    .add("hidden");
+
+
+  $("orderModal")
+    .classList
+    .remove("hidden");
+
+}
+
+
+/* ================= CUSTOM ================= */
+
+$("customYes").onclick = () => {
+
+  custom.yes = true;
+  refreshModalPrice();
+
+  $("customYes")
+    .classList
+    .add("selected");
+
+  $("customNo")
+    .classList
+    .remove("selected");
+
+};
+
+
+$("customNo").onclick = () => {
+
+  custom.yes = false;
+  refreshModalPrice();
+
+  $("customNo")
+    .classList
+    .add("selected");
+
+  $("customYes")
+    .classList
+    .remove("selected");
+
+};
+
+
+/* ================= CONTINUE ================= */
+
+$("continueOrder").onclick = () => {
+
+
+  if (!selectedSize) {
+
+    toast(
+      "Avval o‘lchamni tanlang."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    selected.custom &&
+    !custom.yes &&
+    !$("customNo")
+      .classList
+      .contains("selected")
+  ) {
+
+    toast(
+      "HA yoki YO‘Q ni tanlang."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    selected.custom &&
+    custom.yes
+  ) {
+
+    $("orderStep1")
+      .classList
+      .add("hidden");
+
+    $("orderStep2")
+      .classList
+      .remove("hidden");
+
+  } else {
+
+    showSummary();
+
+  }
+
+};
+
+
+/* ================= SAVE CUSTOM ================= */
+
+$("saveCustom").onclick = () => {
+
+  const name =
+    $("shirtName")
+      .value
+      .trim()
+      .toUpperCase();
+
+  const number =
+    $("shirtNumber")
+      .value
+      .trim();
+
+
+  if (
+    !name ||
+    !number ||
+    +number < 1 ||
+    +number > 99
+  ) {
+
+    toast(
+      "Ism va 1–99 oralig‘idagi raqamni kiriting."
+    );
+
+    return;
+
+  }
+
+
+  custom.name = name;
+
+  custom.number = number;
+  refreshModalPrice();
+
+
+  showSummary();
+
+};
+
+
+/* ================= SUMMARY ================= */
+
+function showSummary() {
+
+  const total = unitPrice() * Number(quantity);
+
+
+  $("orderStep1")
+    .classList
+    .add("hidden");
+
+  $("orderStep2")
+    .classList
+    .add("hidden");
+
+  $("orderStep3")
+    .classList
+    .remove("hidden");
+
+
+  $("summary").innerHTML = `
+
+    <b>${selected.name}</b>
+
+    <br>
+
+    O‘lcham:
+    <b>${selectedSize}</b>
+
+    <br>
+
+    Miqdor:
+    <b>${quantity}</b>
+
+    <br>
+
+    ${
+      custom.yes
+        ? `Orqa yozuv:
+           <b>${custom.name} #${custom.number}</b> (+${money(PRINT_FEE)})`
+        : "Orqa yozuv: yo‘q"
+    }
+
+    <br>
+
+    Narxi:
+    <b>${money(unitPrice())}</b>
+
+    <br>
+
+    Jami:
+    <b>${money(total)}</b>
+
+  `;
+
+}
+
+
+/* ================= CART ================= */
+
+const CART_KEY = "fm_cart_" + (user.email || "guest");
+
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+  catch (e) { return []; }
+}
+
+function setCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  renderCart();
+}
+
+function addToCart() {
+  if (!selected || !selectedSize) { toast("Avval o‘lchamni tanlang."); return; }
+
+  const cart = getCart();
+  const item = {
+    key: [selected.id, selectedSize, custom.yes ? custom.name + "#" + custom.number : ""].join("|"),
+    productId: selected.id,
+    name: selected.name,
+    cat: selected.cat,
+    img: selected.img,
+    size: selectedSize,
+    qty: quantity,
+    unitPrice: unitPrice(),
+    custom: custom.yes,
+    shirtName: custom.yes ? custom.name : "",
+    shirtNumber: custom.yes ? custom.number : ""
+  };
+
+  const same = cart.find(x => x.key === item.key);
+  if (same) same.qty = Math.min(99, same.qty + item.qty);
+  else cart.push(item);
+
+  setCart(cart);
+  $("orderModal").classList.add("hidden");
+  toast("Savatga qo‘shildi ✓");
+  $("cartBtn").classList.remove("bump");
+  void $("cartBtn").offsetWidth;
+  $("cartBtn").classList.add("bump");
+}
+
+function changeQty(key, delta) {
+  const cart = getCart();
+  const item = cart.find(x => x.key === key);
+  if (!item) return;
+  item.qty = Math.max(1, Math.min(99, item.qty + delta));
+  setCart(cart);
+}
+
+function removeFromCart(key) {
+  setCart(getCart().filter(x => x.key !== key));
+}
+
+function renderCart() {
+  const cart = getCart();
+  const count = cart.reduce((n, x) => n + x.qty, 0);
+  const total = cart.reduce((n, x) => n + x.qty * x.unitPrice, 0);
+
+  $("cartCount").textContent = count;
+  $("cartCount").classList.toggle("hidden", count === 0);
+  $("cartSub").textContent = money(total);
+  $("cartDelivery").textContent = money(count ? DELIVERY_FEE : 0);
+  $("cartTotal").textContent = money(total + (count ? DELIVERY_FEE : 0));
+  $("cartFoot").classList.toggle("hidden", cart.length === 0);
+
+  if (!cart.length) {
+    $("cartItems").innerHTML = `
+      <div class="cart-empty">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <h3>Savat bo‘sh</h3>
+        <p>Katalogdan mahsulot tanlang, ular shu yerda yig‘iladi.</p>
+      </div>`;
+    return;
+  }
+
+  $("cartItems").innerHTML = cart.map(x => `
+    <div class="cart-item">
+      <div class="cart-thumb"><img src="${x.img}" alt="" onerror="this.src='./card.png'"></div>
+      <div class="cart-info">
+        <b>${x.name}</b>
+        <span>O‘lcham: ${x.size}${x.custom ? " • " + x.shirtName + " #" + x.shirtNumber : ""}</span>
+        <div class="cart-row">
+          <div class="mini-qty">
+            <button type="button" data-act="minus" data-key="${x.key}" aria-label="Kamaytirish">−</button>
+            <span>${x.qty}</span>
+            <button type="button" data-act="plus" data-key="${x.key}" aria-label="Ko‘paytirish">+</button>
+          </div>
+          <strong>${money(x.qty * x.unitPrice)}</strong>
+        </div>
+      </div>
+      <button class="cart-remove" type="button" data-act="remove" data-key="${x.key}" aria-label="O‘chirish"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join("");
+}
+
+$("cartItems").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const key = btn.dataset.key;
+  if (btn.dataset.act === "plus") changeQty(key, 1);
+  if (btn.dataset.act === "minus") changeQty(key, -1);
+  if (btn.dataset.act === "remove") removeFromCart(key);
+});
+
+$("cartBtn").onclick = () => $("cartOverlay").classList.remove("hidden");
+$("cartClose").onclick = () => $("cartOverlay").classList.add("hidden");
+$("cartOverlay").addEventListener("click", e => {
+  if (e.target === $("cartOverlay")) $("cartOverlay").classList.add("hidden");
+});
+$("cartClear").onclick = () => { if (confirm("Savatdagi hamma narsa o‘chirilsinmi?")) setCart([]); };
+$("addToCart").onclick = addToCart;
+
+
+/* ================= CHECKOUT ================= */
+
+async function placeOrders(details) {
+  const cart = getCart();
+  if (!cart.length) return;
+
+  $("coConfirm").disabled = true;
+  let serverSaved = true;
+  const saved = JSON.parse(localStorage.getItem("fm_orders") || "[]");
+  const batch = [];
+
+  for (const [i, x] of cart.entries()) {
+    const order = {
+      id: Date.now() + i,
+      userId: user.id || null,
+      userName: user.name || "Noma'lum",
+      email: user.email || "",
+      productId: x.productId,
+      product: x.name,
+      category: x.cat,
+      size: x.size,
+      quantity: x.qty,
+      custom: x.custom,
+      shirtName: x.shirtName,
+      shirtNumber: x.shirtNumber,
+      unitPrice: x.unitPrice,
+      delivery: i === 0 ? DELIVERY_FEE : 0,
+      total: x.unitPrice * x.qty + (i === 0 ? DELIVERY_FEE : 0),
+      phone: details.phone,
+      address: details.address,
+      location: details.location,
+      payment: details.payment,
+      cardLast4: details.cardLast4,
+      status: "Yangi",
+      date: new Date().toISOString()
+    };
+
+    saved.push(order);
+    batch.push(order);
+  }
+
+  // butun savat bitta buyurtma bo'lib boradi (Vercel: Telegram botga, kompyuterda: data.json ga)
+  try {
+    const r = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orders: batch })
+    });
+    if (!r.ok) serverSaved = false;
+  } catch (err) {
+    serverSaved = false;
+  }
+
+  localStorage.setItem("fm_orders", JSON.stringify(saved));
+  setCart([]);
+  $("coConfirm").disabled = false;
+  $("checkoutModal").classList.add("hidden");
+  $("cartOverlay").classList.add("hidden");
+  toast(serverSaved ? "Buyurtma Admin'ga yuborildi! ⚽ Tez orada qo‘ng‘iroq qilamiz." : "Buyurtma saqlandi, lekin adminga yetib bormadi. Internetni tekshiring.");
+}
+
+/* ---- yetkazib berish ma'lumotlari ---- */
+
+const PROFILE_KEY = "fm_profile_" + (user.email || "guest");
+let payMethod = null;
+let geoLink = "";
+
+function luhn(num) {
+  let sum = 0, alt = false;
+  for (let i = num.length - 1; i >= 0; i--) {
+    let d = +num[i];
+    if (alt) { d *= 2; if (d > 9) d -= 9; }
+    sum += d; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+
+function normPhone(v) {
+  let d = v.replace(/\D/g, "");
+  if (d.length === 9) d = "998" + d;
+  return d.length === 12 && d.startsWith("998") ? "+" + d : null;
+}
+
+function setPay(method) {
+  payMethod = method;
+  $("payCash").classList.toggle("selected", method === "Naqd");
+  $("payCard").classList.toggle("selected", method === "Karta");
+  $("cardBox").classList.toggle("hidden", method !== "Karta");
+}
+
+function openCheckout() {
+  const cart = getCart();
+  if (!cart.length) return;
+  const total = cart.reduce((n, x) => n + x.qty * x.unitPrice, 0);
+  const count = cart.reduce((n, x) => n + x.qty, 0);
+  const prof = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+
+  $("checkoutSum").textContent = count + " ta mahsulot • yetkazib berish " + money(DELIVERY_FEE) + " • jami " + money(total + DELIVERY_FEE);
+  $("coPhone").value = prof.phone || "";
+  $("coAddress").value = prof.address || "";
+  $("coCard").value = "";
+  $("coError").textContent = "";
+  geoLink = "";
+  $("coLocText").textContent = "Joylashuvimni yuborish";
+  $("coLocate").classList.remove("done");
+  setPay(null);
+  $("checkoutModal").classList.remove("hidden");
+}
+
+$("checkout").onclick = openCheckout;
+$("checkoutClose").onclick = () => $("checkoutModal").classList.add("hidden");
+$("checkoutModal").addEventListener("click", e => {
+  if (e.target === $("checkoutModal")) $("checkoutModal").classList.add("hidden");
+});
+$("payCash").onclick = () => setPay("Naqd");
+$("payCard").onclick = () => setPay("Karta");
+
+$("coCard").addEventListener("input", e => {
+  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+});
+
+$("coLocate").onclick = () => {
+  if (!navigator.geolocation) { $("coError").textContent = "Brauzer joylashuvni qo‘llamaydi. Manzilni yozing."; return; }
+  $("coError").textContent = "";
+  $("coLocText").textContent = "Aniqlanmoqda...";
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      geoLink = "https://www.google.com/maps?q=" + lat.toFixed(6) + "," + lon.toFixed(6);
+      $("coLocate").classList.add("done");
+      $("coLocText").textContent = "Joylashuv yuborildi ✓";
+      $("coAddress").value = "Manzil aniqlanmoqda...";
+
+      let text = "";
+      try {
+        const r = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&accept-language=uz,ru&lat=" + lat + "&lon=" + lon);
+        const d = await r.json();
+        text = d.display_name || "";
+      } catch (e) {}
+
+      $("coAddress").value = text || ("Joylashuv: " + lat.toFixed(5) + ", " + lon.toFixed(5));
+    },
+    () => {
+      $("coLocText").textContent = "Joylashuvimni yuborish";
+      $("coError").textContent = "Joylashuvga ruxsat berilmadi. Manzilni yozib qoldiring.";
+    },
+    { timeout: 10000, enableHighAccuracy: true }
+  );
+};
+
+$("coConfirm").onclick = () => {
+  const phone = normPhone($("coPhone").value);
+  const address = $("coAddress").value.trim();
+  const card = $("coCard").value.replace(/\D/g, "");
+  const err = t => { $("coError").textContent = t; };
+
+  if (!phone) return err("Telefon raqamni to‘liq kiriting: +998 90 123 45 67");
+  if (address.length < 5 && !geoLink) return err("Manzilni yozing yoki joylashuvingizni yuboring.");
+  if (!payMethod) return err("To‘lov usulini tanlang: naqd yoki karta.");
+  if (payMethod === "Karta" && !(card.length === 16 && luhn(card))) return err("Karta raqami noto‘g‘ri. 16 ta raqamni tekshiring.");
+
+  $("coError").textContent = "";
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ phone, address }));
+
+  placeOrders({
+    phone,
+    address,
+    location: geoLink,
+    payment: payMethod === "Karta" ? "Karta" : "Naqd pul",
+    cardLast4: payMethod === "Karta" ? card.slice(-4) : ""
+  });
+};
+
+renderCart();
+
+
+/* ================= QUANTITY ================= */
+
+$("qtyMinus").onclick = () => {
+
+  quantity =
+    Math.max(
+      1,
+      quantity - 1
+    );
+
+  $("qtyValue").textContent =
+    quantity;
+
+  refreshModalPrice();
+
+};
+
+
+$("qtyPlus").onclick = () => {
+
+  quantity =
+    Math.min(
+      99,
+      quantity + 1
+    );
+
+  $("qtyValue").textContent =
+    quantity;
+
+  refreshModalPrice();
+
+};
+
+
+/* ================= CLOSE MODAL ================= */
+
+$("closeModal").onclick = () => {
+
+  $("orderModal")
+    .classList
+    .add("hidden");
+
+};
+
+
+$("orderModal")
+  .addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target ===
+        $("orderModal")
+      ) {
+
+        $("orderModal")
+          .classList
+          .add("hidden");
+
+      }
+
+    }
+  );
+
+
+/* ================= LOGOUT ================= */
+
+$("logout").onclick = () => {
+
+  localStorage.removeItem(
+    "fm_current_user"
+  );
+
+  location.href =
+    "./login.html";
+
+};
+
+
+/* ================= TOAST ================= */
+
+function toast(message) {
+
+  $("toast").textContent =
+    message;
+
+  $("toast")
+    .classList
+    .add("show");
+
+
+  setTimeout(() => {
+
+    $("toast")
+      .classList
+      .remove("show");
+
+  }, 2500);
+
+}
+
+
+/* ================= STORAGE SYNC ================= */
+
+window.addEventListener(
+  "storage",
+  event => {
+
+    if (
+      event.key ===
+      "fm_products"
+    ) {
+
+      products =
+        getProducts();
+
+      setupFilters();
+      render();
+
+    }
+
+  }
+);
+
+
+
+
+
+</script>
+
+<script src="./language.js"></script>
+</body>
+</html>
+

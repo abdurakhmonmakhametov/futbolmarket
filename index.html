@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutbolMarket — Futbol uchun eng zo'r bozor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <!-- 3D model viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<link rel="stylesheet" href="./neon-theme.css">
+</head>
+
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="tepa">
+        <img class="logo" src="./logo.png" alt="FutbolMarket">
+        <div class="tepa-actions">
+            <a class="tg-link" href="https://t.me/futbolmarket_bot" target="_blank" rel="noopener">Telegram bot</a>
+            <a href="./login.html"><button class="btn">Kirish</button></a>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <main class="ota">
+
+        <!-- decorative paint splash -->
+        <!-- <div class="splash"></div> -->
+
+        <!-- LEFT: text content -->
+        <section class="hero-left">
+            <div class="badge">
+                <span class="dot"></span>
+                FUTBOL UCHUN ENG ZO'R BOZOR
+            </div>
+
+            <h1 class="title">
+                <span class="dark">JIHOZLANING.</span><br>
+                <span class="lime">AJRALIB TURING.</span>
+            </h1>
+
+            <p class="subtitle">
+                Dunyodagi yetakchi brendlarning original futbol anjomlari.<br>
+                O'yinchilar uchun. Ishqibozlar uchun. O'yin uchun.
+            </p>
+
+            <div class="cta-row">
+               <a href="./login.html">
+                 <button class="cta-primary">
+                    Xarid qilish <span class="arrow">&#8599;</span>
+                </button>
+               </a>
+            </div>
+        </section>
+
+        <!-- RIGHT: 3D model -->
+        <section class="hero-right">
+            <model-viewer id="jersey" src="./model/clothe3D.glb" alt="FutbolMarket 2024/25 uy formasi — 3D"
+                camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="20deg" shadow-intensity="1.2"
+                shadow-softness="0.8" exposure="1.1" interaction-prompt="none" camera-orbit="0deg 80deg 105%"
+                disable-zoom>
+            </model-viewer>
+
+
+            <!-- price card -->
+        </section>
+    </main>
+
+
+    <section class="ota2">
+        <div class="ota2-inner">
+            <h1>FUTBOL BUYUMLARI</h1>
+            <p>Buyumlarni arzon narxlarga sotib oling</p>
+
+            <div class="bola">
+                <a class="card" href="./login.html">
+                    <div class="card-img"><img src="./real.png" alt="Formalar"></div>
+                    <div class="ppp">
+                        <span class="f">Formalar</span>
+                        <span class="bt"><img src="./chiziq.png" alt=""></span>
+                    </div>
+                </a>
+
+                <a class="card" href="./login.html">
+                    <div class="card-img"><img src="./butsa.png" alt="Butsalar"></div>
+                    <div class="ppp">
+                        <span class="f">Butsalar</span>
+                        <span class="bt"><img src="./chiziq.png" alt=""></span>
+                    </div>
+                </a>
+
+                <a class="card" href="./login.html">
+                    <div class="card-img"><img src="./top.png" alt="To'plar"></div>
+                    <div class="ppp">
+                        <span class="f">To'plar</span>
+                        <span class="bt"><img src="./chiziq.png" alt=""></span>
+                    </div>
+                </a>
+
+                <a class="card" href="./login.html">
+                    <div class="card-img"><img src="./kubog.png" alt="Kuboglar"></div>
+                    <div class="ppp">
+                        <span class="f">Kuboglar</span>
+                        <span class="bt"><img src="./chiziq.png" alt=""></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script src="./main.js"></script>
+<script src="./language.js"></script>
+</body>
+
+</html>

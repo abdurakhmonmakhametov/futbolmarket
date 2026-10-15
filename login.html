@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Futbol Market — Kirish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="./neon-theme.css">
+</head>
+<body class="auth-page">
+<div class="auth-bg"><span></span><span></span><span></span></div>
+<header class="auth-header">
+  <a href="./index.html" class="brand"><img src="./logo.png" alt="Futbol Market"></a>
+  <a href="./index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Orqaga</a>
+</header>
+<main class="auth-wrap">
+  <section class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" type="button">Kirish</button>
+      <button class="auth-tab" id="registerTab" type="button">Ro‘yxatdan o‘tish</button>
+    </div>
+
+
+    <form id="loginForm" class="auth-form">
+      <label>Email</label>
+      <div class="input-line"><i class="fa-regular fa-envelope"></i><input id="loginEmail" type="email" placeholder="Masalan: Asadullayev@gmail.com" required></div>
+      <label>Parol</label>
+      <div class="input-line"><i class="fa-solid fa-lock"></i><input id="loginPassword" type="password" placeholder="Parolingiz" required><button type="button" class="eye" data-input="loginPassword"><i class="fa-regular fa-eye-slash"></i></button></div>
+      <button class="auth-submit" type="submit">KIRISH <i class="fa-solid fa-arrow-right"></i></button>
+      <div id="loginError" class="form-message"></div>
+      <p class="hint"><b>Admin:</b> Admin@gmail.com &nbsp; • &nbsp; Oddiy foydalanuvchi: o‘zingizning emailingiz</p>
+    </form>
+
+    <form id="registerForm" class="auth-form hidden">
+      <label>Ism</label>
+      <div class="input-line"><i class="fa-regular fa-user"></i><input id="regName" type="text" placeholder="Ismingiz" required></div>
+      <label>Email</label>
+      <div class="input-line"><i class="fa-regular fa-envelope"></i><input id="regEmail" type="email" placeholder="email@gmail.com" required></div>
+      <label>Parol</label>
+      <div class="input-line"><i class="fa-solid fa-lock"></i><input id="regPassword" type="password" minlength="4" placeholder="Kamida 4 ta belgi" required><button type="button" class="eye" data-input="regPassword"><i class="fa-regular fa-eye-slash"></i></button></div>
+      <button class="auth-submit" type="submit">AKKAUNT YARATISH <i class="fa-solid fa-arrow-right"></i></button>
+      <div id="registerMessage" class="form-message"></div>
+    </form>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const loginTab=$("loginTab"), registerTab=$("registerTab");
+function tab(login){
+  loginTab.classList.toggle("active",login); registerTab.classList.toggle("active",!login);
+  $("loginForm").classList.toggle("hidden",!login); $("registerForm").classList.toggle("hidden",login);
+  $("authSubtitle").textContent=login?"Hisobingizga kiring va xaridni boshlang.":"Yangi hisob yarating va xaridni boshlang.";
+}
+loginTab.onclick=()=>tab(true); registerTab.onclick=()=>tab(false);
+
+document.querySelectorAll(".eye").forEach(btn=>btn.onclick=()=>{
+  const input=$(btn.dataset.input), icon=btn.querySelector("i");
+  input.type=input.type==="password"?"text":"password";
+  icon.classList.toggle("fa-eye"); icon.classList.toggle("fa-eye-slash");
+});
+
+$("loginForm").onsubmit=e=>{
+  e.preventDefault();
+  const email=$("loginEmail").value.trim().toLowerCase(), pass=$("loginPassword").value;
+  if(!email||!pass)return;
+  if(email==="admin@gmail.com"){
+    const admin={name:"Admin",email:"admin@gmail.com",role:"admin"};
+    localStorage.setItem("fm_current_user",JSON.stringify(admin));
+    location.href="./admin.html"; return;
+  }
+  let users=JSON.parse(localStorage.getItem("fm_users")||"[]");
+  let user=users.find(u=>u.email===email);
+  if(!user){
+    user={id:Date.now(),name:email.split("@")[0],email,pass,role:"user"};
+    users.push(user); localStorage.setItem("fm_users",JSON.stringify(users));
+  } else if(user.pass && user.pass!==pass){
+    $("loginError").textContent="Parol noto‘g‘ri.";
+    return;
+  }
+  localStorage.setItem("fm_current_user",JSON.stringify(user));
+  location.href="./shop.html";
+};
+
+$("registerForm").onsubmit=e=>{
+  e.preventDefault();
+  const name=$("regName").value.trim(), email=$("regEmail").value.trim().toLowerCase(), pass=$("regPassword").value;
+  let users=JSON.parse(localStorage.getItem("fm_users")||"[]");
+  if(email==="admin@gmail.com"){ $("registerMessage").textContent="Bu email admin uchun ajratilgan."; return; }
+  if(users.some(u=>u.email===email)){ $("registerMessage").textContent="Bu email allaqachon ro‘yxatdan o‘tgan."; return; }
+  const user={id:Date.now(),name,email,pass,role:"user"};
+  users.push(user); localStorage.setItem("fm_users",JSON.stringify(users));
+  localStorage.setItem("fm_current_user",JSON.stringify(user));
+  location.href="./shop.html";
+};
+</script>
+<script src="./language.js"></script>
+</body>
+</html>

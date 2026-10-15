@@ -1,0 +1,61 @@
+/* Futbol Market neon theme — conservative overrides that preserve original layout */
+:root{--fm-neon:#d9ff00;--fm-neon-green:#9cff00;--fm-dark:#050605}
+html{scroll-behavior:smooth;background:#050605}
+body{background-color:#050605!important;background-image:linear-gradient(90deg,rgba(0,0,0,.80),rgba(0,0,0,.48)),url('./neon-background.png')!important;background-position:center center!important;background-size:cover!important;background-attachment:fixed!important;background-repeat:no-repeat!important;color:#f5f7f2}
+/* Only recolor surfaces; do not override every button or active class globally. */
+.tepa,.shop-header,.auth-header,.admin-header{background:rgba(4,6,4,.90)!important;border-bottom:1px solid rgba(217,255,0,.22)!important;backdrop-filter:blur(12px)}
+.hero-left,.auth-card,.shop-hero,.modal-card,.admin-product-box{background-color:rgba(5,8,5,.88)!important;border-color:rgba(217,255,0,.28)!important;box-shadow:0 16px 48px rgba(0,0,0,.32)}
+.hero-left .dark{color:#f5f7f2}
+input,select,textarea{max-width:100%}
+.fm-language{position:fixed;z-index:1000;right:18px;top:14px;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(217,255,0,.55);border-radius:11px;background:rgba(5,7,5,.95);color:#fff;font:600 13px Archivo,Arial,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.fm-language span{color:var(--fm-neon)}
+.fm-language select{width:auto;min-width:54px;padding:3px 2px!important;border:0!important;background:transparent!important;color:#fff!important;box-shadow:none!important;font-weight:700;cursor:pointer}
+.fm-language option{background:#080a08;color:#fff}
+/* Keep the home page purchase CTA visible on narrow screens. */
+.cta-row{display:flex;visibility:visible;opacity:1;}
+.cta-row>a{display:inline-flex;max-width:100%;text-decoration:none;}
+.cta-row .cta-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;max-width:100%;white-space:normal;}
+@media(max-width:640px){
+ body{background-attachment:scroll!important;background-position:center top!important}
+ .tepa{gap:12px;padding:14px 16px!important;min-height:68px}
+ .tepa .logo{width:auto;max-width:58vw;height:auto;max-height:42px;object-fit:contain}
+ .tepa>.btn,.tepa>a .btn{padding:10px 14px!important;white-space:nowrap}
+ .ota{padding:28px 16px 34px!important;gap:18px!important;flex-direction:column!important}
+ .hero-left{order:2;width:100%;box-sizing:border-box;padding:22px 18px!important;border-radius:18px}
+ .hero-right{order:1;width:100%;min-width:0;min-height:180px!important;height:220px;overflow:hidden}
+ model-viewer{width:100%;height:220px!important;min-height:200px!important}
+ .hero-left .title{font-size:clamp(28px,8vw,42px)!important;line-height:1.1;overflow-wrap:anywhere}
+ .hero-left .subtitle{font-size:14px!important;line-height:1.6}
+ .cta-row{width:100%;margin-top:20px;align-items:stretch!important}
+ .cta-row>a{width:100%;}
+ .cta-row .cta-primary{width:100%;min-height:52px;font-size:16px!important}
+ .ota2{padding:28px 14px!important}
+ .ota2-inner{width:100%;}
+ .ota2-inner>h1{font-size:clamp(24px,7vw,34px)}
+ .bola{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .card{min-width:0}
+ .card-img{height:clamp(130px,38vw,180px)!important}
+ .shop-header{padding:14px!important;gap:10px;flex-wrap:wrap}
+ .shop-header .brand img{max-width:52vw;height:auto;max-height:40px;object-fit:contain}
+ .header-actions{max-width:100%;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+ .header-actions button{padding:9px 11px}
+ .shop-main{padding:14px!important}
+ .shop-hero{min-height:220px!important;padding:22px!important;box-sizing:border-box}
+ .shop-hero-text{max-width:100%}
+ .shop-hero h1{font-size:clamp(25px,7vw,36px)!important;line-height:1.15}
+ .products{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .product-card{min-width:0;overflow:hidden}
+ .product-img{height:clamp(130px,38vw,190px)!important}
+ .product-card img{max-width:100%;object-fit:contain}
+ .modal-card{width:calc(100vw - 24px)!important;max-width:560px;max-height:88dvh;overflow:auto;box-sizing:border-box;padding:22px 16px!important}
+ .fm-language{top:8px;right:8px;padding:4px 6px;font-size:12px}
+ .fm-language select{min-width:48px;max-width:58px}
+ .auth-card{width:calc(100% - 24px);box-sizing:border-box;padding:22px!important}
+ .admin-product-form{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:360px){
+ .bola,.products{grid-template-columns:1fr!important}
+ .hero-left{padding:18px 14px!important}
+ .cta-row .cta-primary{font-size:15px!important}
+ .shop-header .brand img{max-width:45vw}
+}

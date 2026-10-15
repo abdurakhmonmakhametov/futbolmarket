@@ -1,0 +1,15 @@
+# Maxfiy: bot tokeni shu yerda
+.env
+
+# Kompyuterdagi ish holati (buyurtmalar, bot holati)
+data.json
+bot-state.json
+
+# Eski nusxa papka va skrinshotlar
+FUTBOL_MARKET_FIXED/
+Снимок*
+\#U0421*
+
+node_modules/
+.vercel/
+telegram-app.zip

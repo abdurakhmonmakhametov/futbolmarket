@@ -1,0 +1,1 @@
+{"name":"futbol-market","version":"2.1.0","private":true,"scripts":{"start":"node index.js","site-only":"node server.js","tg-setup":"node setup-bot.js"}}

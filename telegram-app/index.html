@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070907">
+  <title>Futbol Market</title>
+  <link rel="icon" href="img/ball.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<!-- ============ KATALOG ============ -->
+<section class="view" id="view-shop">
+  <header class="top">
+    <div class="brand">
+      <img src="img/ball.webp" alt="" width="34" height="34">
+      <span>Futbol<b>Market</b></span>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="ordersBtn" type="button" aria-label="Buyurtmalarim">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v16l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 0 1 2-2Zm2 5h6M9 12h6"/></svg>
+      </button>
+      <button class="icon-btn" id="cartBtn" type="button" aria-label="Savat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2M9 20.5h.01M17 20.5h.01"/></svg>
+        <i class="badge hidden" id="cartCount">0</i>
+      </button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <p class="eyebrow" id="hello">Futbol uchun eng zo‘r bozor</p>
+    <h1>Jihozlaning.<br><em>Ajralib turing.</em></h1>
+  </div>
+
+  <nav class="chips" id="chips" aria-label="Kategoriyalar"></nav>
+
+  <main class="grid" id="grid"></main>
+
+  <p class="foot-note">
+    <a href="#" id="siteLink">Saytimiz</a> · Savol bormi? <a href="#" id="contactLink">Admin bilan bog‘lanish</a>
+  </p>
+</section>
+
+<!-- ============ SAVAT ============ -->
+<section class="view panel hidden" id="view-cart">
+  <header class="panel-head">
+    <button class="back" type="button" data-back aria-label="Orqaga">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h2>Savat</h2>
+    <button class="link-btn" id="cartClear" type="button">Tozalash</button>
+  </header>
+  <div id="cartItems" class="cart-items"></div>
+  <div class="totals" id="cartTotals"></div>
+</section>
+
+<!-- ============ RASMIYLASHTIRISH ============ -->
+<section class="view panel hidden" id="view-checkout">
+  <header class="panel-head">
+    <button class="back" type="button" data-back aria-label="Orqaga">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h2>Yetkazib berish</h2>
+    <span></span>
+  </header>
+
+  <form class="form" id="checkoutForm" novalidate>
+    <label for="coName">Ismingiz</label>
+    <input id="coName" autocomplete="name" placeholder="Ism Familiya">
+
+    <label for="coPhone">Telefon raqam</label>
+    <div class="row">
+      <input id="coPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67">
+      <button class="ghost" id="sharePhone" type="button">Telegramdan</button>
+    </div>
+
+    <label for="coAddress">Manzil</label>
+    <textarea id="coAddress" rows="3" placeholder="Shahar, tuman, ko‘cha, uy raqami"></textarea>
+    <button class="ghost wide" id="coLocate" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Zm0-9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+      <span id="coLocText">Joylashuvimni aniqlash</span>
+    </button>
+
+    <label>To‘lov usuli</label>
+    <div class="seg" id="paySeg">
+      <button type="button" data-pay="Naqd pul">Naqd pul</button>
+      <button type="button" data-pay="Karta (Click/Payme)">Karta</button>
+    </div>
+
+    <label for="coNote">Izoh <small>(ixtiyoriy)</small></label>
+    <input id="coNote" placeholder="Masalan: 18:00 dan keyin">
+
+    <div class="summary" id="coSummary"></div>
+    <p class="error" id="coError" role="alert"></p>
+  </form>
+</section>
+
+<!-- ============ YUBORILDI ============ -->
+<section class="view panel hidden" id="view-done">
+  <div class="done">
+    <div class="done-mark">✓</div>
+    <h2 id="doneTitle">Buyurtma tayyor</h2>
+    <p id="doneText">Admin chatida <b>Yuborish</b> tugmasini bosing — shunda buyurtma qabul qilinadi.</p>
+    <pre class="order-text" id="orderText"></pre>
+    <div class="done-actions">
+      <button class="primary" id="resend" type="button">Adminga yuborish</button>
+      <button class="ghost" id="copyOrder" type="button">Matnni nusxalash</button>
+      <button class="link-btn" type="button" data-home>Do‘konga qaytish</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BUYURTMALARIM ============ -->
+<section class="view panel hidden" id="view-orders">
+  <header class="panel-head">
+    <button class="back" type="button" data-back aria-label="Orqaga">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h2>Buyurtmalarim</h2>
+    <span></span>
+  </header>
+  <div id="ordersList" class="orders"></div>
+</section>
+
+<!-- ============ MAHSULOT OYNASI ============ -->
+<div class="sheet-wrap hidden" id="sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pName">
+    <button class="sheet-close" id="sheetClose" type="button" aria-label="Yopish">×</button>
+    <div class="sheet-img"><img id="pImg" alt=""></div>
+    <div class="sheet-body">
+      <small id="pCat"></small>
+      <h3 id="pName"></h3>
+      <strong class="price" id="pPrice"></strong>
+
+      <label>O‘lcham</label>
+      <div class="sizes" id="pSizes"></div>
+
+      <div class="qty-row">
+        <label>Miqdor</label>
+        <div class="stepper">
+          <button type="button" id="qMinus" aria-label="Kamaytirish">−</button>
+          <span id="qVal">1</span>
+          <button type="button" id="qPlus" aria-label="Ko‘paytirish">+</button>
+        </div>
+      </div>
+
+      <div class="print hidden" id="printBox">
+        <label class="switch">
+          <input type="checkbox" id="printOn">
+          <span>Orqasiga ism va raqam yozish <b id="printFeeText"></b></span>
+        </label>
+        <div class="row hidden" id="printFields">
+          <input id="printName" maxlength="12" placeholder="ISM" autocapitalize="characters">
+          <input id="printNum" type="number" inputmode="numeric" min="1" max="99" placeholder="10" class="num">
+        </div>
+      </div>
+      <p class="error" id="pError" role="alert"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Telegramdan tashqarida ochilganda ishlatiladigan pastki tugma -->
+<div class="bar hidden" id="bar"><button class="primary" id="barBtn" type="button"></button></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

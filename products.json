@@ -1,0 +1,88 @@
+[
+  {
+    "id": 1,
+    "name": "Real Madrid Uy Formasi",
+    "cat": "Forma",
+    "price": 899000,
+    "img": "./real.png",
+    "sizes": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "custom": true
+  },
+  {
+    "id": 2,
+    "name": "Real Madrid Mehmon Formasi",
+    "cat": "Forma",
+    "price": 899000,
+    "img": "./logo.png",
+    "sizes": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "custom": true
+  },
+  {
+    "id": 3,
+    "name": "Professional Futbol Butsasi",
+    "cat": "Butsa",
+    "price": 749000,
+    "img": "./butsa.png",
+    "sizes": [
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46"
+    ],
+    "custom": false
+  },
+  {
+    "id": 4,
+    "name": "Match Futbol To‘pi",
+    "cat": "To‘p",
+    "price": 299000,
+    "img": "./top.png",
+    "sizes": [
+      "5-razmer"
+    ],
+    "custom": false
+  },
+  {
+    "id": 5,
+    "name": "Chempionlar Kubogi",
+    "cat": "Kubok",
+    "price": 499000,
+    "img": "./kubog.png",
+    "sizes": [
+      "Standart"
+    ],
+    "custom": false
+  },
+  {
+    "id": 6,
+    "name": "Futbol Forma Premium",
+    "cat": "Forma",
+    "price": 799000,
+    "img": "./ota.png",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "custom": true
+  }
+]
